@@ -15,6 +15,7 @@ func (m Middleware) Latency() gin.HandlerFunc {
 		latency := time.Since(t)
 		status := c.Writer.Status()
 
+		//todo: more logs
 		m.logger.Info(fmt.Sprintf("handled %v, latency: %v, response status: %v", c.Request.URL.Path, latency, status))
 	}
 }

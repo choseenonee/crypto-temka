@@ -29,3 +29,6 @@ go.work.sum
 
 # mine notes
 notes.md
+
+# logs
+*.log

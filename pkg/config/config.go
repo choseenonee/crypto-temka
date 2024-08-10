@@ -13,7 +13,7 @@ const (
 	DBPassword        = "DB_PASSWORD"
 	DBPort            = "DB_PORT"
 	DBHost            = "DB_HOST"
-	TimeOut           = "TIME_OUT"
+	Timeout           = "TIMEOUT"
 	JWTExpire         = "JWT_EXPIRE"
 	Secret            = "SECRET"
 	SessionExpiration = "SESSION_EXPIRATION"
@@ -21,6 +21,7 @@ const (
 
 func InitConfig() {
 	envPath, _ := os.Getwd()
+
 	envPath = filepath.Join(envPath, "..") // workdir is cmd
 	envPath = filepath.Join(envPath, "/deploy")
 

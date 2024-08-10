@@ -1,7 +1,7 @@
 package models
 
 type ReviewCreate struct {
-	Tittle     string      `json:"tittle"`
+	Title      string      `json:"tittle"`
 	Text       string      `json:"text"`
 	Properties interface{} `json:"properties"`
 }

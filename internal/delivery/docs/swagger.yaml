@@ -1,0 +1,149 @@
+definitions:
+  models.Review:
+    properties:
+      id:
+        type: integer
+      properties: {}
+      text:
+        type: string
+      tittle:
+        type: string
+    type: object
+  models.ReviewCreate:
+    properties:
+      properties: {}
+      text:
+        type: string
+      tittle:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /static/review:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Review ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Reviews per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array of reviews
+          schema:
+            items:
+              $ref: '#/definitions/models.Review'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Review create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReviewCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created review
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Review
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+swagger: "2.0"

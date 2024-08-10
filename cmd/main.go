@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto-temka/internal/delivery"
 	"crypto-temka/pkg/config"
 	"crypto-temka/pkg/database"
 	"crypto-temka/pkg/log"
@@ -19,5 +20,5 @@ func main() {
 	db := database.MustGetDB()
 	logger.Info("Database Initialized")
 
-	_ = db
+	delivery.Start(db, logger)
 }

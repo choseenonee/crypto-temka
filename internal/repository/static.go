@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"crypto-temka/internal/models"
+	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
@@ -16,19 +17,31 @@ func InitStatic(db *sqlx.DB) Static {
 }
 
 func (s static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int, error) {
+	propertiesJSON, err := json.Marshal(rc.Properties)
+	if err != nil {
+		return 0, err
+	}
+
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
 	}
 
-	// todo: test jsonb convert
-	res, err := tx.ExecContext(ctx, `INSERT INTO reviews (tittle, text, properties) VALUES ($1, $2, $3) RETURNING id`,
-		rc.Tittle, rc.Text, rc.Tittle)
+	row := tx.QueryRowContext(ctx, `INSERT INTO reviews (title, text, properties) VALUES ($1, $2, $3) RETURNING id`,
+		rc.Title, rc.Text, propertiesJSON)
 	if err != nil {
 		return 0, err
 	}
 
-	id, _ := res.LastInsertId()
+	var id int
+	err = row.Scan(&id)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return 0, fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return 0, err
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -39,11 +52,11 @@ func (s static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int, 
 		return 0, err
 	}
 
-	return int(id), nil
+	return id, nil
 }
 
 func (s static) GetReviews(ctx context.Context, page, reviewsPerPage int) ([]models.Review, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT id, tittle, text, properties FROM reviews OFFSET $1 LIMIT $2`,
+	rows, err := s.db.QueryContext(ctx, `SELECT id, title, text, properties FROM reviews OFFSET $1 LIMIT $2`,
 		(page-1)*reviewsPerPage, reviewsPerPage)
 	if err != nil {
 		return nil, err
@@ -52,11 +65,13 @@ func (s static) GetReviews(ctx context.Context, page, reviewsPerPage int) ([]mod
 	var reviews []models.Review
 	for rows.Next() {
 		var review models.Review
-		// todo: test jsonb convert
-		err = rows.Scan(&review.ID, &review.Tittle, &review.Text, &review.Properties)
+		var propertiesRaw []byte
+		err = rows.Scan(&review.ID, &review.Title, &review.Text, &propertiesRaw)
 		if err != nil {
 			return nil, err
 		}
+
+		_ = json.Unmarshal(propertiesRaw, &review.Properties)
 
 		reviews = append(reviews, review)
 	}
@@ -70,18 +85,31 @@ func (s static) GetReviews(ctx context.Context, page, reviewsPerPage int) ([]mod
 }
 
 func (s static) UpdateReview(ctx context.Context, r models.Review) error {
+	propertiesJSON, err := json.Marshal(r.Properties)
+	if err != nil {
+		return err
+	}
+
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	// todo: test jsonb convert
-	_, err = tx.ExecContext(ctx, `UPDATE reviews
-											SET tittle = $2, text = $3, properties = $4 
+	res, err := tx.ExecContext(ctx, `UPDATE reviews
+											SET title = $2, text = $3, properties = $4 
 											WHERE id = $1`,
-		r.ID, r.Tittle, r.Text, r.Tittle)
+		r.ID, r.Title, r.Text, propertiesJSON)
 	if err != nil {
 		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return fmt.Errorf("update cancelled, rows affected = %v", rowsAffected)
 	}
 
 	err = tx.Commit()
@@ -102,9 +130,17 @@ func (s static) DeleteReview(ctx context.Context, id int) error {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `DELETE FROM reviews WHERE id = $1`, id)
+	res, err := tx.ExecContext(ctx, `DELETE FROM reviews WHERE id = $1`, id)
 	if err != nil {
 		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return fmt.Errorf("update cancelled, rows affected = %v", rowsAffected)
 	}
 
 	err = tx.Commit()
