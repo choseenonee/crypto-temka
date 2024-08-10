@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"os"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -23,7 +24,7 @@ func intiDocs(r *gin.Engine) {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
-func Start(db *sqlx.DB, logger *log.Logs) {
+func Start(db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) {
 	r := gin.Default()
 
 	middlewareStruct := middleware.InitMiddleware(logger)
@@ -31,7 +32,7 @@ func Start(db *sqlx.DB, logger *log.Logs) {
 
 	intiDocs(r)
 
-	routers.InitRouting(r, db, logger, middlewareStruct)
+	routers.InitRouting(r, db, logger, middlewareStruct, metricsSetFile)
 
 	if err := r.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("error running client: %v", err.Error()))

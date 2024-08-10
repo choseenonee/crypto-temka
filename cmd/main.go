@@ -5,6 +5,8 @@ import (
 	"crypto-temka/pkg/config"
 	"crypto-temka/pkg/database"
 	"crypto-temka/pkg/log"
+	"fmt"
+	"os"
 )
 
 func main() {
@@ -20,5 +22,11 @@ func main() {
 	db := database.MustGetDB()
 	logger.Info("Database Initialized")
 
-	delivery.Start(db, logger)
+	metricsSetFile, err := os.OpenFile("static/metrics.json", os.O_RDWR, 0660)
+	if err != nil {
+		panic(fmt.Sprintf("Error opening static/metrics.json file, err: %v", err.Error()))
+	}
+	defer metricsSetFile.Close()
+
+	delivery.Start(db, logger, metricsSetFile)
 }

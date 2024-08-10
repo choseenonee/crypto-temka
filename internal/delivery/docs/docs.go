@@ -15,6 +15,93 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/static/metrics": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "static"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Metrics"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "static"
+                ],
+                "parameters": [
+                    {
+                        "description": "Metrics updated",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.MetricsSet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated metrics",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/static/review": {
             "get": {
                 "consumes": [
@@ -24,7 +111,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "review"
+                    "static"
                 ],
                 "parameters": [
                     {
@@ -80,7 +167,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "review"
+                    "static"
                 ],
                 "parameters": [
                     {
@@ -125,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "review"
+                    "static"
                 ],
                 "parameters": [
                     {
@@ -173,7 +260,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "review"
+                    "static"
                 ],
                 "parameters": [
                     {
@@ -211,6 +298,37 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.Metrics": {
+            "type": "object",
+            "properties": {
+                "alltime_income": {
+                    "type": "integer"
+                },
+                "alltime_out": {
+                    "type": "integer"
+                },
+                "current_users": {
+                    "type": "integer"
+                },
+                "income_sub_out": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.MetricsSet": {
+            "type": "object",
+            "properties": {
+                "alltime_income": {
+                    "type": "integer"
+                },
+                "alltime_out": {
+                    "type": "integer"
+                },
+                "current_users": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Review": {
             "type": "object",
             "properties": {

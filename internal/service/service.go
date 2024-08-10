@@ -10,4 +10,7 @@ type Static interface {
 	GetReviews(ctx context.Context, page, reviewsPerPage int) ([]models.Review, error)
 	UpdateReview(ctx context.Context, r models.Review) error
 	DeleteReview(ctx context.Context, id int) error
+
+	SetMetrics(ctx context.Context, m models.MetricsSet) error
+	GetMetrics(ctx context.Context) models.Metrics
 }

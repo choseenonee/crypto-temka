@@ -1,4 +1,24 @@
 definitions:
+  models.Metrics:
+    properties:
+      alltime_income:
+        type: integer
+      alltime_out:
+        type: integer
+      current_users:
+        type: integer
+      income_sub_out:
+        type: integer
+    type: object
+  models.MetricsSet:
+    properties:
+      alltime_income:
+        type: integer
+      alltime_out:
+        type: integer
+      current_users:
+        type: integer
+    type: object
   models.Review:
     properties:
       id:
@@ -20,6 +40,62 @@ definitions:
 info:
   contact: {}
 paths:
+  /static/metrics:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            $ref: '#/definitions/models.Metrics'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - static
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Metrics updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsSet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated metrics
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - static
   /static/review:
     delete:
       consumes:
@@ -48,7 +124,7 @@ paths:
               type: string
             type: object
       tags:
-      - review
+      - static
     get:
       consumes:
       - application/json
@@ -85,7 +161,7 @@ paths:
               type: string
             type: object
       tags:
-      - review
+      - static
     post:
       consumes:
       - application/json
@@ -116,7 +192,7 @@ paths:
               type: string
             type: object
       tags:
-      - review
+      - static
     put:
       consumes:
       - application/json
@@ -145,5 +221,5 @@ paths:
               type: string
             type: object
       tags:
-      - review
+      - static
 swagger: "2.0"

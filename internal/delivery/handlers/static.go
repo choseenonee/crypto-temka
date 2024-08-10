@@ -17,7 +17,7 @@ func InitStaticHandler(serv service.Static) StaticHandler {
 }
 
 // CreateReview @Summary Create review
-// @Tags review
+// @Tags static
 // @Accept  json
 // @Produce  json
 // @Param data body models.ReviewCreate true "Review create"
@@ -45,7 +45,7 @@ func (s *StaticHandler) CreateReview(c *gin.Context) {
 }
 
 // GetReviews @Summary Get reviews
-// @Tags review
+// @Tags static
 // @Accept  json
 // @Produce  json
 // @Param page query int true "Page"
@@ -78,7 +78,7 @@ func (s *StaticHandler) GetReviews(c *gin.Context) {
 }
 
 // UpdateReview @Summary Update review
-// @Tags review
+// @Tags static
 // @Accept  json
 // @Produce  json
 // @Param data body models.Review true "Review"
@@ -111,7 +111,7 @@ func (s *StaticHandler) UpdateReview(c *gin.Context) {
 }
 
 // DeleteReview @Summary Delete review
-// @Tags review
+// @Tags static
 // @Accept  json
 // @Produce  json
 // @Param id query int true "Review ID"
@@ -139,4 +139,48 @@ func (s *StaticHandler) DeleteReview(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// UpdateMetrics @Summary Update metrics
+// @Tags static
+// @Accept  json
+// @Produce  json
+// @Param data body models.MetricsSet true "Metrics updated"
+// @Success 200 {object} int "Successfully updated metrics"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /static/metrics [post]
+func (s *StaticHandler) UpdateMetrics(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var ms models.MetricsSet
+
+	if err := c.ShouldBindJSON(&ms); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := s.service.SetMetrics(ctx, ms)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// GetMetrics @Summary Get metrics
+// @Tags static
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} models.Metrics "Successfully"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /static/metrics [get]
+func (s *StaticHandler) GetMetrics(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	metrics := s.service.GetMetrics(ctx)
+
+	c.JSON(http.StatusOK, metrics)
 }

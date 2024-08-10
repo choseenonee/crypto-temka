@@ -7,14 +7,15 @@ import (
 	"crypto-temka/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"os"
 )
 
-func RegisterStaticRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
+func RegisterStaticRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) *gin.RouterGroup {
 	staticRouter := r.Group("/static")
 
 	staticRepo := repository.InitStatic(db)
 
-	staticService := service.InitStatic(staticRepo, logger)
+	staticService := service.InitStatic(staticRepo, logger, metricsSetFile)
 
 	staticHandler := handlers.InitStaticHandler(staticService)
 
@@ -22,6 +23,9 @@ func RegisterStaticRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.Rou
 	staticRouter.GET("/review", staticHandler.GetReviews)
 	staticRouter.PUT("/review", staticHandler.UpdateReview)
 	staticRouter.DELETE("/review", staticHandler.DeleteReview)
+
+	staticRouter.POST("/metrics", staticHandler.UpdateMetrics)
+	staticRouter.GET("/metrics", staticHandler.GetMetrics)
 
 	return staticRouter
 }
