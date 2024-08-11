@@ -151,8 +151,6 @@ func (s *StaticHandler) DeleteReview(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /static/metrics [post]
 func (s *StaticHandler) UpdateMetrics(c *gin.Context) {
-	ctx := c.Request.Context()
-
 	var ms models.MetricsSet
 
 	if err := c.ShouldBindJSON(&ms); err != nil {
@@ -160,7 +158,7 @@ func (s *StaticHandler) UpdateMetrics(c *gin.Context) {
 		return
 	}
 
-	err := s.service.SetMetrics(ctx, ms)
+	err := s.service.SetMetrics(ms)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -178,9 +176,7 @@ func (s *StaticHandler) UpdateMetrics(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /static/metrics [get]
 func (s *StaticHandler) GetMetrics(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	metrics := s.service.GetMetrics(ctx)
+	metrics := s.service.GetMetrics()
 
 	c.JSON(http.StatusOK, metrics)
 }

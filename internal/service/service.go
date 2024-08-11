@@ -11,6 +11,6 @@ type Static interface {
 	UpdateReview(ctx context.Context, r models.Review) error
 	DeleteReview(ctx context.Context, id int) error
 
-	SetMetrics(ctx context.Context, m models.MetricsSet) error
-	GetMetrics(ctx context.Context) models.Metrics
+	SetMetrics(m models.MetricsSet) error
+	GetMetrics() models.Metrics
 }

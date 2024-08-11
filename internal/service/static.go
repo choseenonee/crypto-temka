@@ -78,12 +78,7 @@ func (s *static) DeleteReview(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *static) SetMetrics(ctx context.Context, m models.MetricsSet) error {
-	s.Lock()
-	defer s.Unlock()
-
-	s.metricsSet = m
-
+func (s *static) SetMetrics(m models.MetricsSet) error {
 	mJSON, _ := json.Marshal(m)
 
 	err := s.metricsSetFile.Truncate(0)
@@ -96,10 +91,15 @@ func (s *static) SetMetrics(ctx context.Context, m models.MetricsSet) error {
 		return err
 	}
 
+	s.Lock()
+	defer s.Unlock()
+
+	s.metricsSet = m
+
 	return nil
 }
 
-func (s *static) GetMetrics(ctx context.Context) models.Metrics {
+func (s *static) GetMetrics() models.Metrics {
 	s.RLock()
 	defer s.RUnlock()
 
