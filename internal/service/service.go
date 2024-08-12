@@ -20,3 +20,9 @@ type Rate interface {
 	GetRates(ctx context.Context, page, PerPage int) ([]models.Rate, error)
 	UpdateRate(ctx context.Context, ru models.Rate) error
 }
+
+type UserRate interface {
+	Create(ctx context.Context, urc models.UserRateCreate) (int, error)
+	Get(ctx context.Context, id int) (models.UserRate, error)
+	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
+}
