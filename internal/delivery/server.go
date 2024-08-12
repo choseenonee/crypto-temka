@@ -3,6 +3,7 @@ package delivery
 import (
 	"crypto-temka/internal/delivery/docs"
 	"crypto-temka/internal/delivery/middleware"
+	"crypto-temka/internal/delivery/middleware/auth"
 	"crypto-temka/internal/delivery/routers"
 	"crypto-temka/pkg/log"
 	"fmt"
@@ -31,8 +32,8 @@ func Start(db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) {
 	initGeneralMiddleware(r, middlewareStruct)
 
 	intiDocs(r)
-
-	routers.InitRouting(r, db, logger, middlewareStruct, metricsSetFile)
+	jwtUtils := auth.InitJWTUtil()
+	routers.InitRouting(r, db, logger, middlewareStruct, metricsSetFile, jwtUtils)
 
 	if err := r.Run("0.0.0.0:8080"); err != nil {
 		panic(fmt.Sprintf("error running client: %v", err.Error()))
