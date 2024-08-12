@@ -55,9 +55,9 @@ func (s static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int, 
 	return id, nil
 }
 
-func (s static) GetReviews(ctx context.Context, page, reviewsPerPage int) ([]models.Review, error) {
+func (s static) GetReviews(ctx context.Context, page, perPage int) ([]models.Review, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT id, title, text, properties FROM reviews OFFSET $1 LIMIT $2`,
-		(page-1)*reviewsPerPage, reviewsPerPage)
+		(page-1)*perPage, perPage)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,6 @@ func (s static) UpdateReview(ctx context.Context, r models.Review) error {
 		return err
 	}
 
-	// todo: test jsonb convert
 	res, err := tx.ExecContext(ctx, `UPDATE reviews
 											SET title = $2, text = $3, properties = $4 
 											WHERE id = $1`,

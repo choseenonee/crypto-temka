@@ -10,5 +10,5 @@ import (
 
 func InitRouting(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middleware.Middleware, metricsSetFile *os.File) {
 	_ = RegisterStaticRouter(r, db, logger, metricsSetFile)
-
+	_ = RegisterRateRouter(r, db, logger)
 }

@@ -48,8 +48,8 @@ func (s *static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int,
 	return id, nil
 }
 
-func (s *static) GetReviews(ctx context.Context, page, reviewsPerPage int) ([]models.Review, error) {
-	reviews, err := s.repo.GetReviews(ctx, page, reviewsPerPage)
+func (s *static) GetReviews(ctx context.Context, page, perPage int) ([]models.Review, error) {
+	reviews, err := s.repo.GetReviews(ctx, page, perPage)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return nil, err
