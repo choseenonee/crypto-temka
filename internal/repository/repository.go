@@ -16,6 +16,7 @@ type Rate interface {
 	CreateRate(ctx context.Context, rc models.RateCreate) (int, error)
 	GetRates(ctx context.Context, page, perPage int) ([]models.Rate, error)
 	UpdateRate(ctx context.Context, ru models.Rate) error
+	GetRate(ctx context.Context, id int) (models.Rate, error)
 }
 
 type UsersRate interface {

@@ -28,7 +28,6 @@ func (s *UserRateHandler) CreateUserRate(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var urc models.UserRateCreate
-
 	if err := c.ShouldBindJSON(&urc); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

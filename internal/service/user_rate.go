@@ -4,33 +4,49 @@ import (
 	"context"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
+	"crypto-temka/internal/utils"
 	"crypto-temka/pkg/log"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 )
 
 type userRate struct {
 	logger     *log.Logs
 	repo       repository.UsersRate
 	walletRepo repository.Wallet
+	rateRepo   repository.Rate
 }
 
-func InitUserRate(repo repository.UsersRate, logger *log.Logs) UserRate {
+func InitUserRate(repo repository.UsersRate, walletRepo repository.Wallet, rateRepo repository.Rate, logger *log.Logs) UserRate {
 	return userRate{
-		logger: logger,
-		repo:   repo,
+		logger:     logger,
+		repo:       repo,
+		walletRepo: walletRepo,
+		rateRepo:   rateRepo,
 	}
 }
 
 func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, error) {
-	wallet, err := u.walletRepo.GetByToken(ctx, urc.UserID, urc.Token)
+	rate, err := u.rateRepo.GetRate(ctx, urc.RateID)
 	if err != nil {
-		u.logger.Error(err.Error())
 		return 0, err
 	}
 
-	if wallet.ID == 0 {
-		err := errors.New(fmt.Sprintf("wallet with token %v not found", urc.Token))
+	urc.Lock = utils.DateOnly(urc.Lock)
+	rateLock := utils.DateOnly(time.Now()).Add(time.Hour * 24 * time.Duration(rate.MinLockDays))
+	if urc.Lock.Before(rateLock) {
+		return 0, fmt.Errorf("lock date must be more. min_lock_days for this rate is %v", rate.MinLockDays)
+	}
+
+	wallet, err := u.walletRepo.GetByToken(ctx, urc.UserID, urc.Token)
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "sql: no rows in result set") {
+			err := errors.New(fmt.Sprintf("wallet with token %v not found", urc.Token))
+			u.logger.Error(err.Error())
+			return 0, err
+		}
 		u.logger.Error(err.Error())
 		return 0, err
 	}

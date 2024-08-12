@@ -59,6 +59,40 @@ definitions:
       tittle:
         type: string
     type: object
+  models.UserRate:
+    properties:
+      deposit:
+        type: integer
+      earned_pool:
+        type: integer
+      id:
+        type: integer
+      lock:
+        type: string
+      opened:
+        type: string
+      outcome_pool:
+        type: integer
+      rate_id:
+        type: integer
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.UserRateCreate:
+    properties:
+      deposit:
+        type: integer
+      lock:
+        type: string
+      rate_id:
+        type: integer
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
@@ -342,4 +376,176 @@ paths:
             type: object
       tags:
       - admin
+  /rate:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Rate
+          schema:
+            $ref: '#/definitions/models.UserRate'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRateCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
+  /rate/claim/deposit:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: amount
+        in: query
+        name: amount
+        required: true
+        type: integer
+      - description: userRateID
+        in: query
+        name: user_rate_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
+  /rate/claim/outcome:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: amount
+        in: query
+        name: amount
+        required: true
+        type: integer
+      - description: userRateID
+        in: query
+        name: user_rate_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
+  /rate/user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Per page
+        in: query
+        name: per_page
+        type: integer
+      - description: User id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array
+          schema:
+            items:
+              $ref: '#/definitions/models.UserRate'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
 swagger: "2.0"

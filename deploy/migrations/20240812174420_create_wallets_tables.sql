@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS wallets (
     id SERIAL PRIMARY KEY,
     user_id INTEGER,
     token VARCHAR,
-    deposit INTEGER CHECK (deposit > 0)
+    deposit INTEGER CHECK (deposit >= 0)
 );
 -- +goose StatementEnd
 

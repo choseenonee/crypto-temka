@@ -3,13 +3,19 @@ package repository
 import (
 	"context"
 	"crypto-temka/internal/models"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
 
 type rate struct {
 	db *sqlx.DB
+}
+
+func InitRate(db *sqlx.DB) Rate {
+	return rate{db: db}
 }
 
 func (r rate) CreateRate(ctx context.Context, rc models.RateCreate) (int, error) {
@@ -56,6 +62,9 @@ func (r rate) GetRates(ctx context.Context, page, perPage int) ([]models.Rate, e
 	rows, err := r.db.QueryContext(ctx, `SELECT id, title, profit, min_lock_days, properties FROM rates OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no rates were found, page: %v, perPage: %v", page, perPage)
+		}
 		return nil, err
 	}
 
@@ -120,6 +129,20 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 	return nil
 }
 
-func InitRate(db *sqlx.DB) Rate {
-	return rate{db: db}
+func (r rate) GetRate(ctx context.Context, id int) (models.Rate, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT id, title, profit, min_lock_days, properties FROM rates WHERE id = $1;`, id)
+
+	var rate models.Rate
+	var propertiesRaw []byte
+	err := row.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &propertiesRaw)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Rate{}, fmt.Errorf("rate not found with id %v", id)
+		}
+		return models.Rate{}, err
+	}
+
+	_ = json.Unmarshal(propertiesRaw, &rate.Properties)
+
+	return rate, nil
 }

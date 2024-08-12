@@ -3,6 +3,9 @@ package repository
 import (
 	"context"
 	"crypto-temka/internal/models"
+	"crypto-temka/internal/utils"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"time"
@@ -61,8 +64,10 @@ func (u usersRate) Get(ctx context.Context, id int) (models.UserRate, error) {
 	var userRate models.UserRate
 	err := row.Scan(&userRate.ID, &userRate.UserID, &userRate.RateID, &userRate.Lock, &userRate.Opened, &userRate.Deposit,
 		&userRate.EarnedPool, &userRate.OutcomePool, &userRate.Token)
-
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.UserRate{}, fmt.Errorf("no userRate found with id %v", id)
+		}
 		return models.UserRate{}, err
 	}
 
@@ -74,6 +79,9 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
        earned_pool, outcome_pool, token FROM users_rates WHERE user_id = $3 OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage, userID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no userRate were found, userID: %v, page: %v, perPage: %v", userID, page, perPage)
+		}
 		return nil, err
 	}
 
@@ -140,7 +148,9 @@ func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, amount, walletI
 		return err
 	}
 
-	if !lock.After(time.Now()) {
+	lock = utils.DateOnly(lock)
+	today := utils.DateOnly(time.Now())
+	if today.Before(lock) {
 		return fmt.Errorf("can't claim deposit before lock date: %v", lock)
 	}
 

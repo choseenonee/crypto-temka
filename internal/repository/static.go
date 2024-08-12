@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"crypto-temka/internal/models"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )
@@ -59,6 +61,9 @@ func (s static) GetReviews(ctx context.Context, page, perPage int) ([]models.Rev
 	rows, err := s.db.QueryContext(ctx, `SELECT id, title, text, properties FROM reviews OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no reviews were found, page: %v, perPage: %v", page, perPage)
+		}
 		return nil, err
 	}
 
