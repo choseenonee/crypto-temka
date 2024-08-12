@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users_rates (
     deposit INTEGER CHECK (deposit > 0),
     earned_pool INTEGER NOT NULL DEFAULT 0,
     next_day_charge INTEGER,
-    outcome_pool INTEGER NOT NULL DEFAULT 0,
+    outcome_pool INTEGER NOT NULL DEFAULT 0 CHECK (outcome_pool > 0),
     token VARCHAR
 );
 -- +goose StatementEnd

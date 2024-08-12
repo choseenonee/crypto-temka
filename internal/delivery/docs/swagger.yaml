@@ -62,7 +62,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /rate:
+  /admin/rate:
     get:
       consumes:
       - application/json
@@ -99,7 +99,7 @@ paths:
               type: string
             type: object
       tags:
-      - rate
+      - admin
     post:
       consumes:
       - application/json
@@ -130,7 +130,7 @@ paths:
               type: string
             type: object
       tags:
-      - rate
+      - admin
     put:
       consumes:
       - application/json
@@ -159,8 +159,8 @@ paths:
               type: string
             type: object
       tags:
-      - rate
-  /static/metrics:
+      - admin
+  /admin/static/metrics:
     get:
       consumes:
       - application/json
@@ -184,7 +184,7 @@ paths:
               type: string
             type: object
       tags:
-      - static
+      - admin
     post:
       consumes:
       - application/json
@@ -215,8 +215,8 @@ paths:
               type: string
             type: object
       tags:
-      - static
-  /static/review:
+      - admin
+  /admin/static/review:
     delete:
       consumes:
       - application/json
@@ -244,7 +244,7 @@ paths:
               type: string
             type: object
       tags:
-      - static
+      - admin
     get:
       consumes:
       - application/json
@@ -281,7 +281,7 @@ paths:
               type: string
             type: object
       tags:
-      - static
+      - admin
     post:
       consumes:
       - application/json
@@ -312,7 +312,7 @@ paths:
               type: string
             type: object
       tags:
-      - static
+      - admin
     put:
       consumes:
       - application/json
@@ -341,5 +341,5 @@ paths:
               type: string
             type: object
       tags:
-      - static
+      - admin
 swagger: "2.0"

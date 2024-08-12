@@ -17,14 +17,14 @@ func InitRateHandler(serv service.Rate) RateHandler {
 }
 
 // CreateRate @Summary Create
-// @Tags rate
+// @Tags admin
 // @Accept  json
 // @Produce  json
 // @Param data body models.RateCreate true "data"
 // @Success 200 {object} int "Successfully created"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate [post]
+// @Router /admin/rate [post]
 func (s *RateHandler) CreateRate(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -45,7 +45,7 @@ func (s *RateHandler) CreateRate(c *gin.Context) {
 }
 
 // GetRates @Summary Get
-// @Tags rate
+// @Tags admin
 // @Accept  json
 // @Produce  json
 // @Param page query int true "Page"
@@ -53,7 +53,7 @@ func (s *RateHandler) CreateRate(c *gin.Context) {
 // @Success 200 {object} []models.Rate "Array"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate [get]
+// @Router /admin/rate [get]
 func (s *RateHandler) GetRates(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -78,14 +78,14 @@ func (s *RateHandler) GetRates(c *gin.Context) {
 }
 
 // UpdateRate @Summary Update
-// @Tags rate
+// @Tags admin
 // @Accept  json
 // @Produce  json
 // @Param data body models.Rate true "data"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate [put]
+// @Router /admin/rate [put]
 func (s *RateHandler) UpdateRate(c *gin.Context) {
 	ctx := c.Request.Context()
 

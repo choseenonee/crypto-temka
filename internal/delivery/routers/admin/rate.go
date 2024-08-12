@@ -1,4 +1,4 @@
-package routers
+package admin
 
 import (
 	"crypto-temka/internal/delivery/handlers"
@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
+func RegisterRateRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
 	router := r.Group("/rate")
 
 	rateRepo := repository.InitRate(db)

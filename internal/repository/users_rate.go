@@ -20,7 +20,10 @@ func (u usersRate) Create(ctx context.Context, urc models.UserRateCreate, wallet
 
 	timestamp := time.Now()
 
-	//TODO: списать деньги со счёта юзера
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit - $2 WHERE wallets.id = $1`, walletID, urc.Deposit)
+	if err != nil {
+		return 0, err
+	}
 
 	row := tx.QueryRowContext(ctx, `INSERT INTO users_rates (user_id, rate_id, lock, last_updated, opened, deposit, token) 
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
@@ -92,6 +95,76 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
 	}
 
 	return userRates, nil
+}
+
+func (u usersRate) ClaimOutcome(ctx context.Context, userRateID, amount, walletID int) error {
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE users_rates SET outcome_pool = outcome_pool - $2 WHERE id = $1;`,
+		userRateID, amount)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE id = $1`, walletID, amount)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, amount, walletID int) error {
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	row := tx.QueryRowContext(ctx, `SELECT lock FROM users_rates WHERE id = $1;`, userRateID)
+
+	var lock time.Time
+	err = row.Scan(&lock)
+	if err != nil {
+		return err
+	}
+
+	if !lock.After(time.Now()) {
+		return fmt.Errorf("can't claim deposit before lock date: %v", lock)
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE users_rates SET deposit = users_rates.deposit - $2 WHERE id = $1;`,
+		userRateID, amount)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE id = $1`, walletID, amount)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
 }
 
 func InitUsersRate(db *sqlx.DB) UsersRate {

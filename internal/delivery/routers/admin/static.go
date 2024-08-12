@@ -1,4 +1,4 @@
-package routers
+package admin
 
 import (
 	"crypto-temka/internal/delivery/handlers"
@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func RegisterStaticRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) *gin.RouterGroup {
+func RegisterStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) *gin.RouterGroup {
 	staticRouter := r.Group("/static")
 
 	staticRepo := repository.InitStatic(db)

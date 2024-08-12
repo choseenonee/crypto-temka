@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/rate": {
+        "/admin/rate": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -24,7 +24,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "rate"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -80,7 +80,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "rate"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -125,7 +125,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "rate"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -166,7 +166,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/static/metrics": {
+        "/admin/static/metrics": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -175,7 +175,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "responses": {
                     "200": {
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -253,7 +253,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/static/review": {
+        "/admin/static/review": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -262,7 +262,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -318,7 +318,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -363,7 +363,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "parameters": [
                     {
@@ -411,7 +411,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "static"
+                    "admin"
                 ],
                 "parameters": [
                     {

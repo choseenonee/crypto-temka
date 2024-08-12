@@ -17,3 +17,8 @@ type UserRate struct {
 	EarnedPool  int       `json:"earned_pool"`
 	OutcomePool int       `json:"outcome_pool"`
 }
+
+type UserRateClaim struct {
+	Deposit int `json:"deposit"`
+	Outcome int `json:"outcome"`
+}
