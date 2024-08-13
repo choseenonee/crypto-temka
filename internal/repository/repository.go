@@ -23,8 +23,8 @@ type UsersRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	ClaimOutcome(ctx context.Context, userRateID, amount, walletID int) error
-	ClaimDeposit(ctx context.Context, userRateID, amount, walletID int) error
+	Claim(ctx context.Context, userRateID, amount, walletID int) error
+	//ClaimDeposit(ctx context.Context, userRateID, amount, walletID int) error
 }
 
 type Wallet interface {

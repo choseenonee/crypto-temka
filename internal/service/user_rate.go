@@ -86,7 +86,7 @@ func (u userRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]m
 	return userRates, nil
 }
 
-func (u userRate) ClaimOutcome(ctx context.Context, userRateID, amount int) error {
+func (u userRate) Claim(ctx context.Context, userRateID, amount int) error {
 	userRate, err := u.repo.Get(ctx, userRateID)
 	if err != nil {
 		u.logger.Error(err.Error())
@@ -99,7 +99,7 @@ func (u userRate) ClaimOutcome(ctx context.Context, userRateID, amount int) erro
 		return err
 	}
 
-	err = u.repo.ClaimOutcome(ctx, userRateID, amount, wallet.ID)
+	err = u.repo.Claim(ctx, userRateID, amount, wallet.ID)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

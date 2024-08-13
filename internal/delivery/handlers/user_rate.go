@@ -108,7 +108,7 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 	c.JSON(http.StatusOK, rate)
 }
 
-// ClaimOutcome @Summary Claim from outcome pool
+// Claim @Summary Claim from outcome pool
 // @Tags rate
 // @Accept  json
 // @Produce  json
@@ -117,8 +117,8 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate/claim/outcome [put]
-func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
+// @Router /rate/claim [put]
+func (s *UserRateHandler) Claim(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var filter struct {
@@ -132,7 +132,7 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 		return
 	}
 
-	err = s.service.ClaimOutcome(ctx, filter.UserRateID, filter.Amount)
+	err = s.service.Claim(ctx, filter.UserRateID, filter.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -141,35 +141,35 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// ClaimDeposit @Summary Claim from deposit
-// @Tags rate
-// @Accept  json
-// @Produce  json
-// @Param amount query int true "amount"
-// @Param user_rate_id query int true "userRateID"
-// @Success 200 {object} nil ""
-// @Failure 400 {object} map[string]string "Invalid input"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate/claim/deposit [put]
-func (s *UserRateHandler) ClaimDeposit(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	var filter struct {
-		UserRateID int `form:"user_rate_id"`
-		Amount     int `form:"amount"`
-	}
-
-	err := c.BindQuery(&filter)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
-		return
-	}
-
-	err = s.service.ClaimDeposit(ctx, filter.UserRateID, filter.Amount)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.Status(http.StatusOK)
-}
+//// ClaimDeposit @Summary Claim from deposit
+//// @Tags rate
+//// @Accept  json
+//// @Produce  json
+//// @Param amount query int true "amount"
+//// @Param user_rate_id query int true "userRateID"
+//// @Success 200 {object} nil ""
+//// @Failure 400 {object} map[string]string "Invalid input"
+//// @Failure 500 {object} map[string]string "Internal server error"
+//// @Router /rate/claim/deposit [put]
+//func (s *UserRateHandler) ClaimDeposit(c *gin.Context) {
+//	ctx := c.Request.Context()
+//
+//	var filter struct {
+//		UserRateID int `form:"user_rate_id"`
+//		Amount     int `form:"amount"`
+//	}
+//
+//	err := c.BindQuery(&filter)
+//	if err != nil {
+//		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+//		return
+//	}
+//
+//	err = s.service.ClaimDeposit(ctx, filter.UserRateID, filter.Amount)
+//	if err != nil {
+//		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+//		return
+//	}
+//
+//	c.Status(http.StatusOK)
+//}

@@ -105,7 +105,7 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
 	return userRates, nil
 }
 
-func (u usersRate) ClaimOutcome(ctx context.Context, userRateID, amount, walletID int) error {
+func (u usersRate) Claim(ctx context.Context, userRateID, amount, walletID int) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

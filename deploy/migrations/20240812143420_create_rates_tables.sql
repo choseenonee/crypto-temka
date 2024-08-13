@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS rates (
     title VARCHAR,
     profit INTEGER CHECK (profit > 0),
     min_lock_days INTEGER,
+    commission INTEGER,
     properties JSONB
 );
 -- TODO: user_id references ...

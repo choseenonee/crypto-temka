@@ -25,6 +25,6 @@ type UserRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	ClaimOutcome(ctx context.Context, userRateID, amount int) error
-	ClaimDeposit(ctx context.Context, userRateID, amount int) error
+	Claim(ctx context.Context, userRateID, amount int) error
+	//ClaimDeposit(ctx context.Context, userRateID, amount int) error
 }

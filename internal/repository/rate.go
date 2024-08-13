@@ -29,9 +29,9 @@ func (r rate) CreateRate(ctx context.Context, rc models.RateCreate) (int, error)
 		return 0, err
 	}
 
-	row := tx.QueryRowContext(ctx, `INSERT INTO rates (title, profit, min_lock_days, properties) 
+	row := tx.QueryRowContext(ctx, `INSERT INTO rates (title, profit, min_lock_days, commission, properties) 
 VALUES ($1, $2, $3, $4) RETURNING id`,
-		rc.Title, rc.Profit, rc.MinLockDays, propertiesJSON)
+		rc.Title, rc.Profit, rc.MinLockDays, rc.Commission, propertiesJSON)
 	if err != nil {
 		return 0, err
 	}
@@ -59,7 +59,8 @@ VALUES ($1, $2, $3, $4) RETURNING id`,
 }
 
 func (r rate) GetRates(ctx context.Context, page, perPage int) ([]models.Rate, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT id, title, profit, min_lock_days, properties FROM rates OFFSET $1 LIMIT $2`,
+	rows, err := r.db.QueryContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties 
+FROM rates OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -72,7 +73,7 @@ func (r rate) GetRates(ctx context.Context, page, perPage int) ([]models.Rate, e
 	for rows.Next() {
 		var rate models.Rate
 		var propertiesRaw []byte
-		err = rows.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &propertiesRaw)
+		err = rows.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw)
 		if err != nil {
 			return nil, err
 		}
@@ -102,9 +103,9 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE rates
-											SET title = $2, profit = $3, min_lock_days = $4, properties = $5
+											SET title = $2, profit = $3, min_lock_days = $4, commission = $5, properties = $6
 											WHERE id = $1`,
-		ru.ID, ru.Title, ru.Profit, ru.MinLockDays, propertiesJSON)
+		ru.ID, ru.Title, ru.Profit, ru.MinLockDays, ru.Commission, propertiesJSON)
 	if err != nil {
 		return err
 	}
@@ -134,7 +135,7 @@ func (r rate) GetRate(ctx context.Context, id int) (models.Rate, error) {
 
 	var rate models.Rate
 	var propertiesRaw []byte
-	err := row.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &propertiesRaw)
+	err := row.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Rate{}, fmt.Errorf("rate not found with id %v", id)
