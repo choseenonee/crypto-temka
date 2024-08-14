@@ -113,7 +113,7 @@ func (u *UserHandler) GetMe(c *gin.Context) {
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/user/all [put]
+// @Router /admin/user/all [get]
 func (u *UserHandler) GetAll(c *gin.Context) {
 	ctx := c.Request.Context()
 

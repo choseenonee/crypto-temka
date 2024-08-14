@@ -6,6 +6,14 @@ definitions:
       password:
         type: string
     type: object
+  handlers.payloadStatus:
+    properties:
+      properties: {}
+      status:
+        type: string
+      withdraw_id:
+        type: integer
+    type: object
   models.Metrics:
     properties:
       alltime_income:
@@ -125,6 +133,32 @@ definitions:
         type: string
       rate_id:
         type: integer
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.Withdraw:
+    properties:
+      amount:
+        type: integer
+      id:
+        type: integer
+      properties: {}
+      status:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.WithdrawCreate:
+    properties:
+      amount:
+        type: integer
+      properties: {}
+      status:
+        type: string
       token:
         type: string
       user_id:
@@ -352,7 +386,7 @@ paths:
       tags:
       - admin
   /admin/user/all:
-    put:
+    get:
       consumes:
       - application/json
       parameters:
@@ -416,6 +450,88 @@ paths:
         name: status
         required: true
         type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/withdraw/all:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      - description: filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/withdraw/status:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.payloadStatus'
       produces:
       - application/json
       responses:
@@ -790,4 +906,122 @@ paths:
             type: object
       tags:
       - user
+  /withdraw:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: withdraw id
+        in: query
+        name: withdraw_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: withdraw
+          schema:
+            $ref: '#/definitions/models.Withdraw'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - withdraw
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.WithdrawCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - withdraw
+  /withdraw/user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: per_page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            items:
+              $ref: '#/definitions/models.Withdraw'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - withdraw
 swagger: "2.0"

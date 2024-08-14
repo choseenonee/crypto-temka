@@ -33,6 +33,10 @@ func (r rate) CreateRate(ctx context.Context, rc models.RateCreate) (int, error)
 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 		rc.Title, rc.Profit, rc.MinLockDays, rc.Commission, propertiesJSON)
 	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return 0, fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
 		return 0, err
 	}
 
@@ -107,6 +111,10 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 											WHERE id = $1`,
 		ru.ID, ru.Title, ru.Profit, ru.MinLockDays, ru.Commission, propertiesJSON)
 	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
 		return err
 	}
 

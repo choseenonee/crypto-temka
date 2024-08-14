@@ -33,6 +33,10 @@ func (u user) Create(ctx context.Context, uc models.UserCreate) (int, error) {
 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 		uc.Email, uc.PhoneNumber, uc.Password, "opened", uc.ReferID, propertiesJSON)
 	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return 0, fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
 		return 0, err
 	}
 

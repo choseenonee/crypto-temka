@@ -20,4 +20,6 @@ func InitUserRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middlewar
 	_ = RegisterUserRouter(r, userService, mdw)
 
 	_ = RegisterUserRateRouter(r, db, logger, userService.GetStatus, mdw)
+
+	_ = RegisterWithdrawRouter(r, db, logger, userService.GetStatus, mdw)
 }

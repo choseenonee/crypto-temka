@@ -105,6 +105,10 @@ func (s static) UpdateReview(ctx context.Context, r models.Review) error {
 											WHERE id = $1`,
 		r.ID, r.Title, r.Text, propertiesJSON)
 	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
 		return err
 	}
 

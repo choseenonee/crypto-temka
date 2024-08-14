@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterPublicUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
+func RegisterAdminUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
 	router := r.Group("/user")
 
 	userRepo := repository.InitUser(db)
@@ -21,7 +21,7 @@ func RegisterPublicUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs)
 
 	handler := handlers.InitUserHandler(userService)
 
-	router.PUT("/all", handler.GetAll)
+	router.GET("/all", handler.GetAll)
 	router.PUT("/status", handler.UpdateStatus)
 
 	return router

@@ -41,3 +41,11 @@ type User interface {
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
 	UpdateStatus(ctx context.Context, id int, status string) error
 }
+
+type Withdraw interface {
+	Create(ctx context.Context, wu models.WithdrawCreate, walletID int) (int, error)
+	GetByUserID(ctx context.Context, page, perPage, userID int) ([]models.Withdraw, error)
+	GetByID(ctx context.Context, withdrawID int) (models.Withdraw, error)
+	GetAll(ctx context.Context, page, perPage int, status string) ([]models.Withdraw, error)
+	UpdateStatus(ctx context.Context, withdrawID int, status string, properties interface{}) error
+}
