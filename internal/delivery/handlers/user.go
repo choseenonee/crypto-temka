@@ -142,3 +142,37 @@ func (u *UserHandler) GetAll(c *gin.Context) {
 
 	c.JSON(http.StatusOK, users)
 }
+
+// UpdateStatus @Summary UpdateStatus
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param user_id query int true "user_id"
+// @Param status query string true "status"
+// @Success 200 {object} string ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/user/status [put]
+func (u *UserHandler) UpdateStatus(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		UserID int    `form:"user_id"`
+		Status string `form:"status"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	err = u.service.UpdateStatus(ctx, filter.UserID, filter.Status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

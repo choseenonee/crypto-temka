@@ -80,7 +80,6 @@ definitions:
         type: string
       properties: {}
       refer_id:
-        description: 'TODO: test маршалинг анмаршалинг и инсерт / select с бдшки'
         type: integer
       status:
         type: string
@@ -95,7 +94,6 @@ definitions:
         type: string
       properties: {}
       refer_id:
-        description: 'TODO: test маршалинг анмаршалинг и инсерт / select с бдшки'
         type: integer
     type: object
   models.UserRate:
@@ -383,6 +381,48 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/user/status:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      - description: status
+        in: query
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
         "400":
           description: Invalid input
           schema:

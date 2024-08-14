@@ -412,6 +412,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/user/status": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "status",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/public/rate": {
             "get": {
                 "consumes": [
@@ -1075,7 +1138,6 @@ const docTemplate = `{
                 },
                 "properties": {},
                 "refer_id": {
-                    "description": "TODO: test маршалинг анмаршалинг и инсерт / select с бдшки",
                     "type": "integer"
                 },
                 "status": {
@@ -1097,7 +1159,6 @@ const docTemplate = `{
                 },
                 "properties": {},
                 "refer_id": {
-                    "description": "TODO: test маршалинг анмаршалинг и инсерт / select с бдшки",
                     "type": "integer"
                 }
             }

@@ -22,6 +22,7 @@ func RegisterPublicUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs)
 	handler := handlers.InitUserHandler(userService)
 
 	router.PUT("/all", handler.GetAll)
+	router.PUT("/status", handler.UpdateStatus)
 
 	return router
 }

@@ -34,5 +34,5 @@ type User interface {
 	Auth(ctx context.Context, email, password string) (string, error)
 	Get(ctx context.Context, id int) (models.User, error)
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
-	ChangeStatus(ctx context.Context, id int, status string) error
+	UpdateStatus(ctx context.Context, id int, status string) error
 }
