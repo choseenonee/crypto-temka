@@ -2,6 +2,7 @@ package auth
 
 import (
 	"crypto-temka/pkg/config"
+	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"time"
@@ -21,10 +22,11 @@ func InitJWTUtil() JWTUtil {
 
 type userClaim struct {
 	jwt.RegisteredClaims
-	ID int
+	ID      int
+	IsAdmin bool
 }
 
-func (j JWTUtil) CreateToken(userID int) string {
+func (j JWTUtil) CreateToken(userID int, isAdmin bool) string {
 	expiredAt := time.Now().Add(j.expireTimeOut)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaim{
@@ -33,7 +35,8 @@ func (j JWTUtil) CreateToken(userID int) string {
 				Time: expiredAt,
 			},
 		},
-		ID: userID,
+		ID:      userID,
+		IsAdmin: isAdmin,
 	})
 
 	signedString, _ := token.SignedString([]byte(j.secret))
@@ -41,19 +44,19 @@ func (j JWTUtil) CreateToken(userID int) string {
 	return signedString
 }
 
-func (j JWTUtil) Authorize(tokenString string) (int, error) {
+func (j JWTUtil) Authorize(tokenString string) (int, bool, error) {
 	var userClaim userClaim
 
 	token, err := jwt.ParseWithClaims(tokenString, &userClaim, func(token *jwt.Token) (interface{}, error) {
 		return []byte(j.secret), nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 
 	if !token.Valid {
-		return 0, nil
+		return 0, false, fmt.Errorf("token not valid %v", tokenString)
 	}
 
-	return userClaim.ID, nil
+	return userClaim.ID, userClaim.IsAdmin, nil
 }

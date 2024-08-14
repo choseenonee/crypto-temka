@@ -21,21 +21,28 @@ type static struct {
 	repo   repository.Static
 }
 
+var once sync.Once
+var st *static
+
 func InitStatic(repo repository.Static, logger *log.Logs, metricsSetFile *os.File) Static {
-	metricsSetJSON, err := io.ReadAll(metricsSetFile)
+	once.Do(func() {
+		metricsSetJSON, err := io.ReadAll(metricsSetFile)
 
-	var metricsSet models.MetricsSet
-	err = json.Unmarshal(metricsSetJSON, &metricsSet)
-	if err != nil {
-		panic(fmt.Sprintf("Error unmarshalling json from static/metrics.json file, err: %v", err.Error()))
-	}
+		var metricsSet models.MetricsSet
+		err = json.Unmarshal(metricsSetJSON, &metricsSet)
+		if err != nil {
+			panic(fmt.Sprintf("Error unmarshalling json from static/metrics.json file, err: %v", err.Error()))
+		}
 
-	return &static{
-		logger:         logger,
-		repo:           repo,
-		metricsSet:     metricsSet,
-		metricsSetFile: metricsSetFile,
-	}
+		st = &static{
+			logger:         logger,
+			repo:           repo,
+			metricsSet:     metricsSet,
+			metricsSetFile: metricsSetFile,
+		}
+	})
+
+	return st
 }
 
 func (s *static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int, error) {

@@ -20,6 +20,7 @@ func InitStaticHandler(serv service.Static) StaticHandler {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param data body models.ReviewCreate true "Review create"
 // @Success 200 {object} int "Successfully created review"
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -45,7 +46,7 @@ func (s *StaticHandler) CreateReview(c *gin.Context) {
 }
 
 // GetReviews @Summary Get reviews
-// @Tags admin
+// @Tags public
 // @Accept  json
 // @Produce  json
 // @Param page query int true "Page"
@@ -53,7 +54,7 @@ func (s *StaticHandler) CreateReview(c *gin.Context) {
 // @Success 200 {object} []models.Review "Array of reviews"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/static/review [get]
+// @Router /public/static/review [get]
 func (s *StaticHandler) GetReviews(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -81,6 +82,7 @@ func (s *StaticHandler) GetReviews(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param data body models.Review true "Review"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -114,6 +116,7 @@ func (s *StaticHandler) UpdateReview(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param id query int true "Review ID"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -145,6 +148,7 @@ func (s *StaticHandler) DeleteReview(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param data body models.MetricsSet true "Metrics updated"
 // @Success 200 {object} int "Successfully updated metrics"
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -168,13 +172,13 @@ func (s *StaticHandler) UpdateMetrics(c *gin.Context) {
 }
 
 // GetMetrics @Summary Get metrics
-// @Tags admin
+// @Tags public
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.Metrics "Successfully"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/static/metrics [get]
+// @Router /public/static/metrics [get]
 func (s *StaticHandler) GetMetrics(c *gin.Context) {
 	metrics := s.service.GetMetrics()
 

@@ -15,6 +15,10 @@ type usersRate struct {
 	db *sqlx.DB
 }
 
+func InitUsersRate(db *sqlx.DB) UsersRate {
+	return usersRate{db: db}
+}
+
 func (u usersRate) Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error) {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -175,8 +179,4 @@ func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, amount, walletI
 	}
 
 	return nil
-}
-
-func InitUsersRate(db *sqlx.DB) UsersRate {
-	return usersRate{db: db}
 }

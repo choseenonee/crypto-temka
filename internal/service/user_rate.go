@@ -66,11 +66,15 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 	return id, nil
 }
 
-func (u userRate) Get(ctx context.Context, id int) (models.UserRate, error) {
+func (u userRate) Get(ctx context.Context, id, userID int) (models.UserRate, error) {
 	userRate, err := u.repo.Get(ctx, id)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return models.UserRate{}, err
+	}
+
+	if userRate.UserID != userID {
+		return models.UserRate{}, fmt.Errorf("forbidden")
 	}
 
 	return userRate, nil
@@ -86,11 +90,15 @@ func (u userRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]m
 	return userRates, nil
 }
 
-func (u userRate) Claim(ctx context.Context, userRateID, amount int) error {
+func (u userRate) Claim(ctx context.Context, userRateID, amount, userID int) error {
 	userRate, err := u.repo.Get(ctx, userRateID)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err
+	}
+
+	if userRate.UserID != userID {
+		return fmt.Errorf("forbidden")
 	}
 
 	wallet, err := u.walletRepo.GetByToken(ctx, userRate.UserID, userRate.Token)
@@ -100,28 +108,6 @@ func (u userRate) Claim(ctx context.Context, userRateID, amount int) error {
 	}
 
 	err = u.repo.Claim(ctx, userRateID, amount, wallet.ID)
-	if err != nil {
-		u.logger.Error(err.Error())
-		return err
-	}
-
-	return nil
-}
-
-func (u userRate) ClaimDeposit(ctx context.Context, userRateID, amount int) error {
-	userRate, err := u.repo.Get(ctx, userRateID)
-	if err != nil {
-		u.logger.Error(err.Error())
-		return err
-	}
-
-	wallet, err := u.walletRepo.GetByToken(ctx, userRate.UserID, userRate.Token)
-	if err != nil {
-		u.logger.Error(err.Error())
-		return err
-	}
-
-	err = u.repo.ClaimDeposit(ctx, userRateID, amount, wallet.ID)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

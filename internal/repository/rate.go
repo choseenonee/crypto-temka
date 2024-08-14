@@ -30,7 +30,7 @@ func (r rate) CreateRate(ctx context.Context, rc models.RateCreate) (int, error)
 	}
 
 	row := tx.QueryRowContext(ctx, `INSERT INTO rates (title, profit, min_lock_days, commission, properties) 
-VALUES ($1, $2, $3, $4) RETURNING id`,
+VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 		rc.Title, rc.Profit, rc.MinLockDays, rc.Commission, propertiesJSON)
 	if err != nil {
 		return 0, err
@@ -131,7 +131,7 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 }
 
 func (r rate) GetRate(ctx context.Context, id int) (models.Rate, error) {
-	row := r.db.QueryRowContext(ctx, `SELECT id, title, profit, min_lock_days, properties FROM rates WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties FROM rates WHERE id = $1;`, id)
 
 	var rate models.Rate
 	var propertiesRaw []byte

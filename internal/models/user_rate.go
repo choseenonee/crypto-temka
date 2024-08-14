@@ -3,7 +3,7 @@ package models
 import "time"
 
 type UserRateCreate struct {
-	UserID  int       `json:"user_id"`
+	UserID  int       `json:"user_id,omitempty"`
 	RateID  int       `json:"rate_id"`
 	Lock    time.Time `json:"lock"`
 	Deposit int       `json:"deposit"`

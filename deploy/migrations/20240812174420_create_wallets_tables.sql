@@ -1,9 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
--- TODO: user_id references ...
 CREATE TABLE IF NOT EXISTS wallets (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
+    user_id INTEGER REFERENCES users(id),
     token VARCHAR,
     deposit INTEGER CHECK (deposit >= 0),
     UNIQUE (user_id, token)

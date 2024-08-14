@@ -1,4 +1,11 @@
 definitions:
+  handlers.payload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   models.Metrics:
     properties:
       alltime_income:
@@ -21,6 +28,8 @@ definitions:
     type: object
   models.Rate:
     properties:
+      commission:
+        type: integer
       id:
         type: integer
       min_lock_days:
@@ -33,6 +42,8 @@ definitions:
     type: object
   models.RateCreate:
     properties:
+      commission:
+        type: integer
       min_lock_days:
         type: integer
       profit:
@@ -58,6 +69,34 @@ definitions:
         type: string
       tittle:
         type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      phone_number:
+        type: string
+      properties: {}
+      refer_id:
+        description: 'TODO: test маршалинг анмаршалинг и инсерт / select с бдшки'
+        type: integer
+      status:
+        type: string
+    type: object
+  models.UserCreate:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      properties: {}
+      refer_id:
+        description: 'TODO: test маршалинг анмаршалинг и инсерт / select с бдшки'
+        type: integer
     type: object
   models.UserRate:
     properties:
@@ -97,6 +136,268 @@ info:
   contact: {}
 paths:
   /admin/rate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.RateCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Rate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/static/metrics:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Metrics updated
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MetricsSet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated metrics
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/static/review:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Review ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Review create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReviewCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created review
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Review
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.Review'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/user/all:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      - description: filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /public/rate:
     get:
       consumes:
       - application/json
@@ -133,68 +434,8 @@ paths:
               type: string
             type: object
       tags:
-      - admin
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.RateCreate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully created
-          schema:
-            type: integer
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      tags:
-      - admin
-    put:
-      consumes:
-      - application/json
-      parameters:
-      - description: data
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.Rate'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      tags:
-      - admin
-  /admin/static/metrics:
+      - public
+  /public/static/metrics:
     get:
       consumes:
       - application/json
@@ -218,67 +459,8 @@ paths:
               type: string
             type: object
       tags:
-      - admin
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Metrics updated
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/models.MetricsSet'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully updated metrics
-          schema:
-            type: integer
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      tags:
-      - admin
-  /admin/static/review:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: Review ID
-        in: query
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      tags:
-      - admin
+      - public
+  /public/static/review:
     get:
       consumes:
       - application/json
@@ -315,24 +497,25 @@ paths:
               type: string
             type: object
       tags:
-      - admin
+      - public
+  /public/user:
     post:
       consumes:
       - application/json
       parameters:
-      - description: Review create
+      - description: data
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.ReviewCreate'
+          $ref: '#/definitions/models.UserCreate'
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully created review
+          description: Token
           schema:
-            type: integer
+            type: string
         "400":
           description: Invalid input
           schema:
@@ -346,22 +529,24 @@ paths:
               type: string
             type: object
       tags:
-      - admin
+      - public
     put:
       consumes:
       - application/json
       parameters:
-      - description: Review
+      - description: data
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/models.Review'
+          $ref: '#/definitions/handlers.payload'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Token
+          schema:
+            type: string
         "400":
           description: Invalid input
           schema:
@@ -375,7 +560,7 @@ paths:
               type: string
             type: object
       tags:
-      - admin
+      - public
   /rate:
     get:
       consumes:
@@ -386,6 +571,12 @@ paths:
         name: id
         required: true
         type: integer
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -411,6 +602,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: data
         in: body
         name: data
@@ -438,45 +635,17 @@ paths:
             type: object
       tags:
       - rate
-  /rate/claim/deposit:
+  /rate/claim:
     put:
       consumes:
       - application/json
       parameters:
-      - description: amount
-        in: query
-        name: amount
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
         required: true
-        type: integer
-      - description: userRateID
-        in: query
-        name: user_rate_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      tags:
-      - rate
-  /rate/claim/outcome:
-    put:
-      consumes:
-      - application/json
-      parameters:
+        type: string
       - description: amount
         in: query
         name: amount
@@ -511,6 +680,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Page
         in: query
         name: page
@@ -519,11 +694,6 @@ paths:
       - description: Per page
         in: query
         name: per_page
-        type: integer
-      - description: User id
-        in: query
-        name: user_id
-        required: true
         type: integer
       produces:
       - application/json
@@ -548,4 +718,36 @@ paths:
             type: object
       tags:
       - rate
+  /user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
 swagger: "2.0"

@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS rates (
     commission INTEGER,
     properties JSONB
 );
--- TODO: user_id references ...
+
 CREATE TABLE IF NOT EXISTS users_rates (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER,
+    user_id INTEGER REFERENCES users(id),
     rate_id INTEGER REFERENCES rates(id),
     lock DATE,
     last_updated DATE,

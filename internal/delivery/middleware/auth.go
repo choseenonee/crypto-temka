@@ -7,17 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"strings"
-	"time"
 )
 
 const (
 	CUserID = "userID"
 )
 
-func (m Middleware) Authorization() gin.HandlerFunc {
+func (m Middleware) Authorization(admin bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		t := time.Now()
-
 		auth := c.GetHeader("Authorization")
 		if !strings.Contains(auth, "Bearer") {
 			m.logger.Info(fmt.Sprintf("unathorized (NO JWT) access at: %v", c.Request.URL.Path))
@@ -28,15 +25,20 @@ func (m Middleware) Authorization() gin.HandlerFunc {
 		// WITH Bearer <token>
 		jwtToken := strings.Split(auth, " ")[1]
 
-		id, err := m.jwtUtil.Authorize(jwtToken)
-		if errors.Is(err, jwt.ErrTokenExpired) {
-			m.logger.Info(fmt.Sprintf("token expired at: %v", c.Request.URL.Path))
-			c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"detail": "JWT expired"})
-			return
-		}
+		id, isAdmin, err := m.jwtUtil.Authorize(jwtToken)
 		if err != nil {
+			if errors.Is(err, jwt.ErrTokenExpired) {
+				m.logger.Info(fmt.Sprintf("token expired at: %v", c.Request.URL.Path))
+				c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"detail": "JWT expired"})
+				return
+			}
 			m.logger.Error(fmt.Sprintf("token parse error at: %v", c.Request.URL.Path))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "error on parsing JWT"})
+			return
+		}
+
+		if isAdmin != admin {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only admin token for this endpoint"})
 			return
 		}
 
@@ -47,10 +49,5 @@ func (m Middleware) Authorization() gin.HandlerFunc {
 		c.Next()
 
 		// ...AFTER THE REQUEST
-
-		latency := time.Since(t)
-		status := c.Writer.Status()
-
-		m.logger.Info(fmt.Sprintf("handled %v, latency: %v, response status: %v", c.Request.URL.Path, latency, status))
 	}
 }

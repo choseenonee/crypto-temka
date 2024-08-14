@@ -23,8 +23,16 @@ type Rate interface {
 
 type UserRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate) (int, error)
-	Get(ctx context.Context, id int) (models.UserRate, error)
+	Get(ctx context.Context, id, userID int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	Claim(ctx context.Context, userRateID, amount int) error
+	Claim(ctx context.Context, userRateID, amount, userID int) error
 	//ClaimDeposit(ctx context.Context, userRateID, amount int) error
+}
+
+type User interface {
+	Register(ctx context.Context, uc models.UserCreate) (string, error)
+	Auth(ctx context.Context, email, password string) (string, error)
+	Get(ctx context.Context, id int) (models.User, error)
+	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
+	ChangeStatus(ctx context.Context, id int, status string) error
 }

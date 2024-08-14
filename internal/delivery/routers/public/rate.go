@@ -1,4 +1,4 @@
-package admin
+package public
 
 import (
 	"crypto-temka/internal/delivery/handlers"
@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterAdminRateRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
+func RegisterPublicRateRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
 	router := r.Group("/rate")
 
 	rateRepo := repository.InitRate(db)
@@ -18,9 +18,7 @@ func RegisterAdminRateRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) 
 
 	handler := handlers.InitRateHandler(rateService)
 
-	router.POST("", handler.CreateRate)
 	router.GET("", handler.GetRates)
-	router.PUT("", handler.UpdateRate)
 
 	return router
 }

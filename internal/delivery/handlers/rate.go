@@ -20,6 +20,7 @@ func InitRateHandler(serv service.Rate) RateHandler {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param data body models.RateCreate true "data"
 // @Success 200 {object} int "Successfully created"
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -45,7 +46,7 @@ func (s *RateHandler) CreateRate(c *gin.Context) {
 }
 
 // GetRates @Summary Get
-// @Tags admin
+// @Tags public
 // @Accept  json
 // @Produce  json
 // @Param page query int true "Page"
@@ -53,7 +54,7 @@ func (s *RateHandler) CreateRate(c *gin.Context) {
 // @Success 200 {object} []models.Rate "Array"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /admin/rate [get]
+// @Router /public/rate [get]
 func (s *RateHandler) GetRates(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -81,6 +82,7 @@ func (s *RateHandler) GetRates(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param data body models.Rate true "data"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"

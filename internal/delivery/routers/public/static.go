@@ -1,4 +1,4 @@
-package admin
+package public
 
 import (
 	"crypto-temka/internal/delivery/handlers"
@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func RegisterAdminStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) *gin.RouterGroup {
+func RegisterPublicStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs, metricsSetFile *os.File) *gin.RouterGroup {
 	staticRouter := r.Group("/static")
 
 	staticRepo := repository.InitStatic(db)
@@ -19,11 +19,9 @@ func RegisterAdminStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs
 
 	staticHandler := handlers.InitStaticHandler(staticService)
 
-	staticRouter.POST("/review", staticHandler.CreateReview)
-	staticRouter.PUT("/review", staticHandler.UpdateReview)
-	staticRouter.DELETE("/review", staticHandler.DeleteReview)
+	staticRouter.GET("/review", staticHandler.GetReviews)
 
-	staticRouter.POST("/metrics", staticHandler.UpdateMetrics)
+	staticRouter.GET("/metrics", staticHandler.GetMetrics)
 
 	return staticRouter
 }
