@@ -13,7 +13,7 @@ const (
 	CUserID = "userID"
 )
 
-func (m Middleware) Authorization(admin bool) gin.HandlerFunc {
+func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.Contains(auth, "Bearer") {
@@ -40,6 +40,19 @@ func (m Middleware) Authorization(admin bool) gin.HandlerFunc {
 		if isAdmin != admin {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only admin token for this endpoint"})
 			return
+		}
+
+		if !admin {
+			status, err := getStatus(id)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"database invalid: %v": err.Error()})
+				return
+			}
+
+			if status != "verified" {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"your account status:": status})
+				return
+			}
 		}
 
 		c.Set(CUserID, id)

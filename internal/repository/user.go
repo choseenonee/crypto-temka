@@ -101,6 +101,21 @@ func (u user) GetHashedPwd(ctx context.Context, email string) (string, error) {
 	return hashedPwd, nil
 }
 
+func (u user) GetStatus(id int) (string, error) {
+	row := u.db.QueryRow(`SELECT status FROM users WHERE id = $1;`, id)
+
+	var status string
+	err := row.Scan(&status)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", fmt.Errorf("no user with id %v", id)
+		}
+		return "", err
+	}
+
+	return status, nil
+}
+
 func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error) {
 	var err error
 	var rows *sql.Rows

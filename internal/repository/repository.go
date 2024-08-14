@@ -37,6 +37,7 @@ type User interface {
 	GetByID(ctx context.Context, id int) (models.User, error)
 	GetByEmail(ctx context.Context, email string) (models.User, error)
 	GetHashedPwd(ctx context.Context, email string) (string, error)
+	GetStatus(id int) (string, error)
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
 	UpdateStatus(ctx context.Context, id int, status string) error
 }

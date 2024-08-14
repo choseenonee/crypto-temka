@@ -10,10 +10,11 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middleware.Middleware) *gin.RouterGroup {
+func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getStatus func(id int) (string, error),
+	mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/rate")
 
-	router.Use(mdw.Authorization(false))
+	router.Use(mdw.Authorization(false, getStatus))
 
 	userRateRepo := repository.InitUsersRate(db)
 	walletRepo := repository.InitWallet(db)
@@ -27,7 +28,6 @@ func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw mi
 	router.GET("/user", handler.GetUserRates)
 	router.GET("", handler.GetUserRate)
 	router.PUT("/claim", handler.Claim)
-	//router.PUT("/claim/deposit", handler.ClaimDeposit)
 
 	return router
 }

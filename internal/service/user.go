@@ -86,6 +86,16 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 	return users, nil
 }
 
+func (u user) GetStatus(id int) (string, error) {
+	status, err := u.repo.GetStatus(id)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return "", err
+	}
+
+	return status, nil
+}
+
 func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 	err := u.repo.UpdateStatus(ctx, id, status)
 	if err != nil {
