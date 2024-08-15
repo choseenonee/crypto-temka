@@ -34,10 +34,16 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 		return 0, err
 	}
 
+	timestamp := time.Now()
+
 	urc.Lock = utils.DateOnly(urc.Lock)
-	rateLock := utils.DateOnly(time.Now()).Add(time.Hour * 24 * time.Duration(rate.MinLockDays))
+	rateLock := utils.DateOnly(timestamp).Add(time.Hour * 24 * time.Duration(rate.MinLockDays))
 	if urc.Lock.Before(rateLock) {
 		return 0, fmt.Errorf("lock date must be more. min_lock_days for this rate is %v", rate.MinLockDays)
+	}
+	todayDate := utils.DateOnly(timestamp)
+	if urc.Lock.Sub(todayDate)%(time.Hour*24*7) != 0 {
+		return 0, fmt.Errorf("lock date must be ровно через N weeks, то есть количество дней между сегодня. current lock_date %v", urc.Lock)
 	}
 
 	wallet, err := u.walletRepo.GetByToken(ctx, urc.UserID, urc.Token)
