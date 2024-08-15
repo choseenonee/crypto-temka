@@ -205,6 +205,35 @@ func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 	return nil
 }
 
+func processRefund(tx *sql.Tx, ctx context.Context, withdrawID int) error {
+	row := tx.QueryRowContext(ctx, `SELECT w.user_id, w.amount, w.token FROM withdrawals w WHERE id = $1`,
+		withdrawID)
+
+	var userID int
+	var amount int
+	var token string
+	err := row.Scan(&userID, &amount, &token)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("error while selecting refund data err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1 WHERE token = $2 AND user_id = $3`,
+		amount, token, userID)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("error while updating refer data err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (w withdraw) UpdateStatus(ctx context.Context, withdrawID int, status string, properties interface{}) error {
 	propertiesRaw, err := json.Marshal(properties)
 	if err != nil {
@@ -216,7 +245,7 @@ func (w withdraw) UpdateStatus(ctx context.Context, withdrawID int, status strin
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE withdrawals SET status = $2, properties = $3 WHERE id = $1;`,
+	_, err = tx.ExecContext(ctx, `UPDATE withdrawals SET status = $2, properties = $3 WHERE id = $1 AND status = 'opened';`,
 		withdrawID, status, propertiesRaw)
 	if err != nil {
 		rbErr := tx.Rollback()
@@ -228,6 +257,15 @@ func (w withdraw) UpdateStatus(ctx context.Context, withdrawID int, status strin
 
 	if status == "verified" {
 		err = processRefer(tx, ctx, withdrawID)
+		if err != nil {
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+			}
+			return err
+		}
+	} else if status == "declined" {
+		err = processRefund(tx, ctx, withdrawID)
 		if err != nil {
 			rbErr := tx.Rollback()
 			if rbErr != nil {
