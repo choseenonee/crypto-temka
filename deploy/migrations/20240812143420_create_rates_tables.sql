@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS rates (
     id SERIAL PRIMARY KEY,
     title VARCHAR,
     profit INTEGER CHECK (profit > 0),
-    min_lock_days INTEGER,
+    min_lock_days INTEGER CHECK ( min_lock_days % 7 = 0 ),
     commission INTEGER,
     properties JSONB
 );
