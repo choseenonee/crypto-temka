@@ -141,6 +141,8 @@ func (w withdraw) GetAll(ctx context.Context, page, perPage int, status string) 
 			return nil, err
 		}
 
+		_ = json.Unmarshal(propertiesRaw, &withdraw.Properties)
+
 		withdrawals = append(withdrawals, withdraw)
 	}
 
@@ -245,7 +247,7 @@ func (w withdraw) UpdateStatus(ctx context.Context, withdrawID int, status strin
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE withdrawals SET status = $2, properties = $3 WHERE id = $1 AND status = 'opened';`,
+	res, err := tx.ExecContext(ctx, `UPDATE withdrawals SET status = $2, properties = $3 WHERE id = $1 AND status = 'opened';`,
 		withdrawID, status, propertiesRaw)
 	if err != nil {
 		rbErr := tx.Rollback()
@@ -253,6 +255,14 @@ func (w withdraw) UpdateStatus(ctx context.Context, withdrawID int, status strin
 			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
 		}
 		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", "no withdraw found with status opened", rbErr)
+		}
+		return fmt.Errorf("no withdraw found with status opened")
 	}
 
 	if status == "verified" {

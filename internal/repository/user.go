@@ -166,13 +166,21 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1;`, id, status)
+	res, err := tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1 AND status = 'opened';`, id, status)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
 			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
 		}
 		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", "no user found with status opened", rbErr)
+		}
+		return fmt.Errorf("no user found with status opened")
 	}
 
 	err = tx.Commit()
