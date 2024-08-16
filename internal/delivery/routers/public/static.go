@@ -21,6 +21,9 @@ func RegisterPublicStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Log
 
 	staticRouter.GET("/review", staticHandler.GetReviews)
 
+	staticRouter.GET("/case", staticHandler.Get)
+	staticRouter.GET("/case/all", staticHandler.GetCases)
+
 	staticRouter.GET("/metrics", staticHandler.GetMetrics)
 
 	return staticRouter

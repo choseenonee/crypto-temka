@@ -10,6 +10,12 @@ type Static interface {
 	GetReviews(ctx context.Context, page, perPage int) ([]models.Review, error)
 	UpdateReview(ctx context.Context, r models.Review) error
 	DeleteReview(ctx context.Context, id int) error
+
+	CreateCase(ctx context.Context, cc models.CaseCreate) (int, error)
+	GetCase(ctx context.Context, id int) (models.Case, error)
+	GetCases(ctx context.Context, page, perPage int) ([]models.Case, error)
+	UpdateCase(ctx context.Context, cu models.Case) error
+	DeleteCase(ctx context.Context, id int) error
 }
 
 type Rate interface {

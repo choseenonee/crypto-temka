@@ -115,3 +115,53 @@ func (s *static) GetMetrics() models.Metrics {
 		IncomeSubOut: s.metricsSet.AlltimeIncome - s.metricsSet.AlltimeOut,
 	}
 }
+
+func (s *static) CreateCase(ctx context.Context, cc models.CaseCreate) (int, error) {
+	id, err := s.repo.CreateCase(ctx, cc)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (s *static) UpdateCase(ctx context.Context, cu models.Case) error {
+	err := s.repo.UpdateCase(ctx, cu)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (s *static) DeleteCase(ctx context.Context, id int) error {
+	err := s.repo.DeleteCase(ctx, id)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (s *static) GetCase(ctx context.Context, id int) (models.Case, error) {
+	c, err := s.repo.GetCase(ctx, id)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return models.Case{}, err
+	}
+
+	return c, nil
+}
+
+func (s *static) GetCases(ctx context.Context, page, perPage int) ([]models.Case, error) {
+	cases, err := s.repo.GetCases(ctx, page, perPage)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return nil, err
+	}
+
+	return cases, nil
+}

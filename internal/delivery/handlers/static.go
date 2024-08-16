@@ -184,3 +184,162 @@ func (s *StaticHandler) GetMetrics(c *gin.Context) {
 
 	c.JSON(http.StatusOK, metrics)
 }
+
+// CreateCase @Summary Create case
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param data body models.CaseCreate true "Case create"
+// @Success 200 {object} int "Successfully created review"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/static/case [post]
+func (s *StaticHandler) CreateCase(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var cc models.CaseCreate
+
+	if err := c.ShouldBindJSON(&cc); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := s.service.CreateCase(ctx, cc)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, id)
+}
+
+// Get @Summary Get case
+// @Tags public
+// @Accept  json
+// @Produce  json
+// @Param id query int true "id"
+// @Success 200 {object} []models.Case "Array of cases"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /public/static/case [get]
+func (s *StaticHandler) Get(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		ID int `form:"id"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	cs, err := s.service.GetCase(ctx, filter.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, cs)
+}
+
+// GetCases @Summary Get cases
+// @Tags public
+// @Accept  json
+// @Produce  json
+// @Param page query int true "Page"
+// @Param per_page query int true "Reviews per page"
+// @Success 200 {object} []models.Case ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /public/static/case/all [get]
+func (s *StaticHandler) GetCases(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		Page    int `form:"page"`
+		PerPage int `form:"per_page"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	cases, err := s.service.GetCases(ctx, filter.Page, filter.PerPage)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, cases)
+}
+
+// UpdateCase @Summary Update case
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param data body models.Case true "Case"
+// @Success 200 {object} nil ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/static/case [put]
+func (s *StaticHandler) UpdateCase(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var cu models.Case
+
+	if err := c.ShouldBindJSON(&cu); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if _, err := json.Marshal(cu.Properties); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"invalid json in properties: ": err})
+		return
+	}
+
+	err := s.service.UpdateCase(ctx, cu)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// DeleteCase @Summary Delete case
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param id query int true "Case ID"
+// @Success 200 {object} nil ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/static/case [delete]
+func (s *StaticHandler) DeleteCase(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var id struct {
+		ID int `form:"id"`
+	}
+
+	err := c.BindQuery(&id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	err = s.service.DeleteCase(ctx, id.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

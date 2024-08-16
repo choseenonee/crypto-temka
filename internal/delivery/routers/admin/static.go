@@ -25,5 +25,9 @@ func RegisterAdminStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs
 
 	staticRouter.POST("/metrics", staticHandler.UpdateMetrics)
 
+	staticRouter.POST("/case", staticHandler.CreateCase)
+	staticRouter.PUT("/case", staticHandler.UpdateCase)
+	staticRouter.DELETE("/case", staticHandler.DeleteCase)
+
 	return staticRouter
 }

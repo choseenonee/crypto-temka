@@ -21,3 +21,12 @@ type Metrics struct {
 	MetricsSet
 	IncomeSubOut int `json:"income_sub_out"`
 }
+
+type CaseCreate struct {
+	Properties interface{} `json:"properties"`
+}
+
+type Case struct {
+	CaseCreate
+	ID int `json:"id"`
+}

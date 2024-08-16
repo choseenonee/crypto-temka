@@ -11,10 +11,17 @@ type Static interface {
 	UpdateReview(ctx context.Context, r models.Review) error
 	DeleteReview(ctx context.Context, id int) error
 
+	CreateCase(ctx context.Context, cc models.CaseCreate) (int, error)
+	UpdateCase(ctx context.Context, cu models.Case) error
+	DeleteCase(ctx context.Context, id int) error
+
 	SetMetrics(m models.MetricsSet) error
 
 	// public
 	GetReviews(ctx context.Context, page, PerPage int) ([]models.Review, error)
+
+	GetCase(ctx context.Context, id int) (models.Case, error)
+	GetCases(ctx context.Context, page, perPage int) ([]models.Case, error)
 
 	GetMetrics() models.Metrics
 }
