@@ -60,6 +60,19 @@ definitions:
       title:
         type: string
     type: object
+  models.Refer:
+    properties:
+      amount:
+        type: number
+      child_id:
+        type: integer
+      id:
+        type: integer
+      parent_id:
+        type: integer
+      token:
+        type: string
+    type: object
   models.Review:
     properties:
       id:
@@ -107,9 +120,9 @@ definitions:
   models.UserRate:
     properties:
       deposit:
-        type: integer
+        type: number
       earned_pool:
-        type: integer
+        type: number
       id:
         type: integer
       lock:
@@ -117,7 +130,7 @@ definitions:
       opened:
         type: string
       outcome_pool:
-        type: integer
+        type: number
       rate_id:
         type: integer
       token:
@@ -128,7 +141,7 @@ definitions:
   models.UserRateCreate:
     properties:
       deposit:
-        type: integer
+        type: number
       lock:
         type: string
       rate_id:
@@ -141,7 +154,7 @@ definitions:
   models.Withdraw:
     properties:
       amount:
-        type: integer
+        type: number
       id:
         type: integer
       properties: {}
@@ -155,7 +168,7 @@ definitions:
   models.WithdrawCreate:
     properties:
       amount:
-        type: integer
+        type: number
       properties: {}
       status:
         type: string
@@ -806,7 +819,7 @@ paths:
         in: query
         name: amount
         required: true
-        type: integer
+        type: number
       - description: userRateID
         in: query
         name: user_rate_id
@@ -874,6 +887,86 @@ paths:
             type: object
       tags:
       - rate
+  /refer:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Refers per page
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array
+          schema:
+            items:
+              $ref: '#/definitions/models.Refer'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - refer
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - refer
   /user:
     get:
       consumes:

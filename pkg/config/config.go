@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	DBName            = "DB_NAME"
-	DBUser            = "DB_USER"
-	DBPassword        = "DB_PASSWORD"
-	DBPort            = "DB_PORT"
-	DBHost            = "DB_HOST"
-	Timeout           = "TIMEOUT"
-	JWTExpire         = "JWT_EXPIRE"
-	Secret            = "SECRET"
-	SessionExpiration = "SESSION_EXPIRATION"
+	DBName     = "DB_NAME"
+	DBUser     = "DB_USER"
+	DBPassword = "DB_PASSWORD"
+	DBPort     = "DB_PORT"
+	DBHost     = "DB_HOST"
+	Timeout    = "TIMEOUT"
+	JWTExpire  = "JWT_EXPIRE"
+	Secret     = "SECRET"
+
+	ReferPercent = "REFER_PERCENT"
 )
 
 func InitConfig() {

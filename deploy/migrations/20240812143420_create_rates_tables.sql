@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS users_rates (
     lock DATE,
     last_updated DATE,
     opened DATE,
-    deposit INTEGER CHECK (deposit >= 0),
-    earned_pool INTEGER NOT NULL DEFAULT 0,
-    next_day_charge INTEGER,
-    outcome_pool INTEGER NOT NULL DEFAULT 0 CHECK (outcome_pool >= 0),
+    deposit FLOAT8 CHECK (deposit >= 0),
+    earned_pool FLOAT8 NOT NULL DEFAULT 0,
+    next_day_charge FLOAT8,
+    outcome_pool FLOAT8 NOT NULL DEFAULT 0 CHECK (outcome_pool >= 0),
     token VARCHAR
 );
 -- +goose StatementEnd

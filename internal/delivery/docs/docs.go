@@ -985,7 +985,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "number",
                         "description": "amount",
                         "name": "amount",
                         "in": "query",
@@ -1066,6 +1066,126 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.UserRate"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/refer": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "refer"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Refers per page",
+                        "name": "per_page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Refer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "refer"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "400": {
@@ -1411,6 +1531,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Refer": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "child_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Review": {
             "type": "object",
             "properties": {
@@ -1481,10 +1621,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "deposit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "earned_pool": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "id": {
                     "type": "integer"
@@ -1496,7 +1636,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "outcome_pool": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "rate_id": {
                     "type": "integer"
@@ -1513,7 +1653,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "deposit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "lock": {
                     "type": "string"
@@ -1533,7 +1673,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "id": {
                     "type": "integer"
@@ -1554,7 +1694,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "properties": {},
                 "status": {

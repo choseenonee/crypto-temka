@@ -116,7 +116,9 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
 	return userRates, nil
 }
 
-func (u usersRate) Claim(ctx context.Context, userRateID, amount, walletID int) error {
+// todo: сюда чтобы депозит тоже забирался если amount > . если забрали всё то soft-delete тарифчик
+
+func (u usersRate) Claim(ctx context.Context, userRateID, walletID int, amount float64) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -132,7 +134,7 @@ func (u usersRate) Claim(ctx context.Context, userRateID, amount, walletID int) 
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE id = $1`, walletID, amount)
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2, outcome = outcome + $2 WHERE id = $1`, walletID, amount)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {

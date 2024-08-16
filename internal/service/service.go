@@ -33,7 +33,7 @@ type UserRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate) (int, error)
 	Get(ctx context.Context, id, userID int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	Claim(ctx context.Context, userRateID, amount, userID int) error
+	Claim(ctx context.Context, userRateID, userID int, amount float64) error
 }
 
 type User interface {
@@ -59,4 +59,10 @@ type Withdraw interface {
 	// admin
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.Withdraw, error)
 	UpdateStatus(ctx context.Context, withdrawID int, status string, properties interface{}) error
+}
+
+type Refer interface {
+	// user
+	Get(ctx context.Context, userID, page, perPage int) ([]models.Refer, error)
+	Claim(ctx context.Context, id, userID int) error
 }

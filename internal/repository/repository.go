@@ -23,7 +23,7 @@ type UsersRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	Claim(ctx context.Context, userRateID, amount, walletID int) error
+	Claim(ctx context.Context, userRateID, walletID int, amount float64) error
 	//ClaimDeposit(ctx context.Context, userRateID, amount, walletID int) error
 }
 
@@ -48,4 +48,10 @@ type Withdraw interface {
 	GetByID(ctx context.Context, withdrawID int) (models.Withdraw, error)
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.Withdraw, error)
 	UpdateStatus(ctx context.Context, withdrawID int, status string, properties interface{}) error
+}
+
+type Refer interface {
+	// user
+	Get(ctx context.Context, userID, page, perPage int) ([]models.Refer, error)
+	Claim(ctx context.Context, id, userID int) error
 }

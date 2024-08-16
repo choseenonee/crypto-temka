@@ -1,7 +1,7 @@
 package models
 
 type WithdrawBase struct {
-	Amount     int         `json:"amount"`
+	Amount     float64     `json:"amount"`
 	Token      string      `json:"token"`
 	Status     string      `json:"status"`
 	Properties interface{} `json:"properties"`

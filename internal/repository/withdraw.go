@@ -30,7 +30,7 @@ func (w withdraw) Create(ctx context.Context, wu models.WithdrawCreate, walletID
 		return 0, err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit - $2 WHERE id = $1;`,
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit - $2, outcome = outcome - $2 WHERE id = $1;`,
 		walletID, wu.Amount)
 	if err != nil {
 		return 0, err
@@ -161,7 +161,7 @@ func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 	var childID null.Int
 	var parentID null.Int
 	var withdrawalToken null.String
-	var withdrawalAmount null.Int
+	var withdrawalAmount null.Float
 	err := row.Scan(&childID, &parentID, &withdrawalToken, &withdrawalAmount)
 	if err != nil {
 		rbErr := tx.Rollback()
@@ -173,7 +173,7 @@ func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 
 	if parentID.Valid {
 		res, err := tx.ExecContext(ctx, `UPDATE refers SET amount = amount + $1 WHERE token = $2 AND child_id = $3`,
-			withdrawalAmount.Int64, withdrawalToken.String, childID.Int64)
+			withdrawalAmount.Float64, withdrawalToken.String, childID.Int64)
 		if err != nil {
 			rbErr := tx.Rollback()
 			if rbErr != nil {
@@ -193,7 +193,7 @@ func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 
 		if rowsAffected == 0 {
 			_, err = tx.ExecContext(ctx, `INSERT INTO refers (parent_id, child_id, amount, token) VALUES ($1, $2, $3, $4)`,
-				parentID.Int64, childID.Int64, withdrawalAmount.Int64, withdrawalToken.String)
+				parentID.Int64, childID.Int64, withdrawalAmount.Float64, withdrawalToken.String)
 			if err != nil {
 				rbErr := tx.Rollback()
 				if rbErr != nil {
@@ -212,7 +212,7 @@ func processRefund(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 		withdrawID)
 
 	var userID int
-	var amount int
+	var amount float64
 	var token string
 	err := row.Scan(&userID, &amount, &token)
 	if err != nil {
@@ -223,7 +223,7 @@ func processRefund(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1 WHERE token = $2 AND user_id = $3`,
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1, outcome = outcome + $1 WHERE token = $2 AND user_id = $3`,
 		amount, token, userID)
 	if err != nil {
 		rbErr := tx.Rollback()

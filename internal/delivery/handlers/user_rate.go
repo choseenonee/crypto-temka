@@ -135,7 +135,7 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
-// @Param amount query int true "amount"
+// @Param amount query float64 true "amount"
 // @Param user_rate_id query int true "userRateID"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
@@ -145,8 +145,8 @@ func (s *UserRateHandler) Claim(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var filter struct {
-		UserRateID int `form:"user_rate_id"`
-		Amount     int `form:"amount"`
+		UserRateID int     `form:"user_rate_id"`
+		Amount     float64 `form:"amount"`
 	}
 
 	err := c.BindQuery(&filter)
@@ -161,7 +161,7 @@ func (s *UserRateHandler) Claim(c *gin.Context) {
 		return
 	}
 
-	err = s.service.Claim(ctx, filter.UserRateID, filter.Amount, userID.(int))
+	err = s.service.Claim(ctx, filter.UserRateID, userID.(int), filter.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
