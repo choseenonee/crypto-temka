@@ -20,6 +20,8 @@ func InitMessage(repo repository.Message, logger *log.Logs) Message {
 }
 
 func (m message) Create(ctx context.Context, mc models.MessageCreate) (int, error) {
+	mc.Timestamp = mc.Timestamp.UTC()
+
 	id, err := m.repo.Create(ctx, mc)
 	if err != nil {
 		m.logger.Error(err.Error())
