@@ -66,3 +66,9 @@ type Refer interface {
 	Get(ctx context.Context, userID, page, perPage int) ([]models.Refer, error)
 	Claim(ctx context.Context, id, userID int) error
 }
+
+type Message interface {
+	Create(ctx context.Context, mc models.MessageCreate) (int, error)
+	GetByID(ctx context.Context, id, userID int) (models.Message, error)
+	GetByUser(ctx context.Context, userID int) ([]models.Message, error)
+}

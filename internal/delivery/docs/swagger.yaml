@@ -14,6 +14,26 @@ definitions:
       withdraw_id:
         type: integer
     type: object
+  models.Message:
+    properties:
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      properties: {}
+      timestamp:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.MessageCreate:
+    properties:
+      properties: {}
+      timestamp:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.Metrics:
     properties:
       alltime_income:
@@ -180,6 +200,44 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.MessageCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
   /admin/rate:
     post:
       consumes:
@@ -566,6 +624,77 @@ paths:
             type: object
       tags:
       - admin
+  /message:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: message id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            $ref: '#/definitions/models.Message'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - message
+  /message/user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            items:
+              $ref: '#/definitions/models.Message'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - message
   /public/rate:
     get:
       consumes:
