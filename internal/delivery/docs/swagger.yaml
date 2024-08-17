@@ -177,6 +177,29 @@ definitions:
       user_id:
         type: integer
     type: object
+  models.UserRateAdmin:
+    properties:
+      deposit:
+        type: number
+      earned_pool:
+        type: number
+      id:
+        type: integer
+      lock:
+        type: string
+      next_day_charge:
+        type: number
+      opened:
+        type: string
+      outcome_pool:
+        type: number
+      rate_id:
+        type: integer
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.UserRateCreate:
     properties:
       deposit:
@@ -654,6 +677,94 @@ paths:
           description: OK
           schema:
             type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/user_rate/all:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID as filter, can be null
+        in: query
+        name: user_id
+        type: integer
+      - description: page
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: perPage
+        in: query
+        name: per_page
+        required: true
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Rate admin
+          schema:
+            items:
+              $ref: '#/definitions/models.UserRateAdmin'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/user_rate/next_day_charge:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: amount
+        in: query
+        name: amount
+        required: true
+        type: number
+      - description: userRateID
+        in: query
+        name: user_rate_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
         "400":
           description: Invalid input
           schema:

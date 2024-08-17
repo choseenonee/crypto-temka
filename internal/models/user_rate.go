@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type UserRateCreate struct {
 	UserID  int       `json:"user_id,omitempty"`
@@ -16,4 +18,9 @@ type UserRate struct {
 	Opened      time.Time `json:"opened"`
 	EarnedPool  float64   `json:"earned_pool"`
 	OutcomePool float64   `json:"outcome_pool"`
+}
+
+type UserRateAdmin struct {
+	UserRate
+	NextDayCharge *float64 `json:"next_day_charge"`
 }

@@ -43,6 +43,10 @@ type UserRate interface {
 	Get(ctx context.Context, id, userID int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
 	Claim(ctx context.Context, userRateID, userID int, amount float64) error
+
+	// admin
+	GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error)
+	UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error
 }
 
 type User interface {

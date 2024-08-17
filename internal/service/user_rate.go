@@ -121,3 +121,23 @@ func (u userRate) Claim(ctx context.Context, userRateID, userID int, amount floa
 
 	return nil
 }
+
+func (u userRate) GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error) {
+	userRates, err := u.repo.GetAll(ctx, userID, page, perPage)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return nil, err
+	}
+
+	return userRates, nil
+}
+
+func (u userRate) UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error {
+	err := u.repo.UpdateNextDayCharge(ctx, userRateID, nextDayCharge)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}

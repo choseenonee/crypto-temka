@@ -125,10 +125,10 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 	var rows *sql.Rows
 	if status != "" {
 		query := `SELECT id, email, phone_number, status, refer_id, properties FROM users WHERE status = $1 OFFSET $2 LIMIT $3;`
-		rows, err = u.db.QueryContext(ctx, query, status, page, perPage)
+		rows, err = u.db.QueryContext(ctx, query, status, (page-1)*perPage, perPage)
 	} else {
 		query := `SELECT id, email, phone_number, status, refer_id, properties FROM users OFFSET $1 LIMIT $2;`
-		rows, err = u.db.QueryContext(ctx, query, page, perPage)
+		rows, err = u.db.QueryContext(ctx, query, (page-1)*perPage, perPage)
 	}
 
 	if err != nil {

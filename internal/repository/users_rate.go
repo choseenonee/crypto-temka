@@ -154,3 +154,79 @@ func (u usersRate) Claim(ctx context.Context, userRateID, walletID int, amount f
 
 	return nil
 }
+
+func (u usersRate) GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error) {
+	var err error
+	var rows *sql.Rows
+	if userID != 0 {
+		query := `SELECT id, user_id, rate_id, lock, opened, deposit,
+       earned_pool, outcome_pool, token, next_day_charge FROM users_rates WHERE user_id = $1 ORDER BY user_id OFFSET $2 LIMIT $3;`
+		rows, err = u.db.QueryContext(ctx, query, userID, (page-1)*perPage, perPage)
+	} else {
+		query := `SELECT id, user_id, rate_id, lock, opened, deposit,
+       earned_pool, outcome_pool, token, next_day_charge FROM users_rates ORDER BY user_id OFFSET $1 LIMIT $2;`
+		rows, err = u.db.QueryContext(ctx, query, (page-1)*perPage, perPage)
+	}
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no user_rates with, userID: %v", userID)
+		}
+		return nil, err
+	}
+
+	var userRates []models.UserRateAdmin
+	for rows.Next() {
+		var userRate models.UserRateAdmin
+		err = rows.Scan(&userRate.ID, &userRate.UserID, &userRate.RateID, &userRate.Lock, &userRate.Opened, &userRate.Deposit,
+			&userRate.EarnedPool, &userRate.OutcomePool, &userRate.Token, &userRate.NextDayCharge)
+		if err != nil {
+			return nil, err
+		}
+
+		userRates = append(userRates, userRate)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return userRates, nil
+}
+
+func (u usersRate) UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error {
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.ExecContext(ctx, `UPDATE users_rates SET next_day_charge = $2 WHERE id = $1;`,
+		userRateID, nextDayCharge)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", fmt.Sprintf("no user rate found with id %v", userRateID), rbErr)
+		}
+		return fmt.Errorf("no user rate found with id %v", userRateID)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
+}

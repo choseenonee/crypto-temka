@@ -169,3 +169,73 @@ func (s *UserRateHandler) Claim(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+// GetAll @Summary GetAll
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param user_id query int false "userID as filter, can be null"
+// @Param page query int true "page"
+// @Param per_page query int true "perPage"
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Success 200 {object} []models.UserRateAdmin "User Rate admin"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/user_rate/all [get]
+func (s *UserRateHandler) GetAll(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		Page    int `form:"page"`
+		PerPage int `form:"per_page"`
+		UserID  int `form:"user_id"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	rates, err := s.service.GetAll(ctx, filter.UserID, filter.Page, filter.PerPage)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, rates)
+}
+
+// UpdateNextDayCharge @Summary UpdateNextDayCharge
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param amount query float64 true "amount"
+// @Param user_rate_id query int true "userRateID"
+// @Success 200 {object} nil ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/user_rate/next_day_charge [put]
+func (s *UserRateHandler) UpdateNextDayCharge(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		UserRateID int     `form:"user_rate_id"`
+		Amount     float64 `form:"amount"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	err = s.service.UpdateNextDayCharge(ctx, filter.UserRateID, filter.Amount)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
