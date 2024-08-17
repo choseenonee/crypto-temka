@@ -65,7 +65,7 @@ func generateOutcome() models.Outcome {
 	return otc
 }
 
-func wait() {
+func waitOutcome() {
 	t := time.Second * time.Duration(viper.GetInt(config.OutcomeTickerMin)+
 		rand.Intn(viper.GetInt(config.OutcomeTickerMax)-viper.GetInt(config.OutcomeTickerMin)+1))
 	time.Sleep(t)
@@ -80,7 +80,7 @@ func (s *static) serveOutcomesGeneration() {
 		s.outcomeMutex.Unlock()
 	}
 	for {
-		wait()
+		waitOutcome()
 		s.outcomeMutex.Lock()
 		newOutcome := generateOutcome()
 		outcomes := []models.Outcome{newOutcome}

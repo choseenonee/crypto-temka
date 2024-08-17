@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users_rates (
     opened DATE,
     deposit FLOAT8 CHECK (deposit >= 0),
     earned_pool FLOAT8 NOT NULL DEFAULT 0,
-    next_day_charge FLOAT8,
+    next_day_charge FLOAT8 CHECK ( next_day_charge <= (earned_pool + outcome_pool + deposit) ),
     outcome_pool FLOAT8 NOT NULL DEFAULT 0 CHECK (outcome_pool >= 0),
     token VARCHAR
 );

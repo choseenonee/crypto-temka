@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto-temka/internal/delivery"
+	"crypto-temka/internal/service"
 	"crypto-temka/pkg/config"
 	"crypto-temka/pkg/database"
 	"crypto-temka/pkg/log"
@@ -28,5 +29,6 @@ func main() {
 	}
 	defer metricsSetFile.Close()
 
+	service.InitUserRateWorker(db, logger)
 	delivery.Start(db, logger, metricsSetFile)
 }
