@@ -1133,6 +1133,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/static/outcome": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Array of outcomes",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Outcome"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/public/static/review": {
             "get": {
                 "consumes": [
@@ -1970,6 +2012,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "current_users": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Outcome": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }

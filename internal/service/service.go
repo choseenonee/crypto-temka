@@ -24,6 +24,8 @@ type Static interface {
 	GetCases(ctx context.Context, page, perPage int) ([]models.Case, error)
 
 	GetMetrics() models.Metrics
+
+	GetOutcome() []models.Outcome
 }
 
 type Rate interface {

@@ -26,5 +26,7 @@ func RegisterPublicStaticRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Log
 
 	staticRouter.GET("/metrics", staticHandler.GetMetrics)
 
+	staticRouter.GET("/outcome", staticHandler.GetOutcomes)
+
 	return staticRouter
 }

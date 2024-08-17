@@ -4,18 +4,25 @@ import (
 	"context"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
+	"crypto-temka/pkg/config"
 	"crypto-temka/pkg/log"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/viper"
 	"io"
+	"math/rand"
 	"os"
 	"sync"
+	"time"
 )
 
 type static struct {
 	sync.RWMutex
 	metricsSet     models.MetricsSet
 	metricsSetFile *os.File
+
+	outcomes     []models.Outcome
+	outcomeMutex sync.RWMutex
 
 	logger *log.Logs
 	repo   repository.Static
@@ -40,9 +47,46 @@ func InitStatic(repo repository.Static, logger *log.Logs, metricsSetFile *os.Fil
 			metricsSet:     metricsSet,
 			metricsSetFile: metricsSetFile,
 		}
+
+		go st.serveOutcomesGeneration()
 	})
 
 	return st
+}
+
+var tokens = []string{"BitCoin", "Ethereum", "LiteCoin", "DogeCoin", "Dash", "BitcoinCash", "Zcash", "Ripple", "TRON",
+	"Stellar", "BinanceCoin", "TRON_TRC20", "Ethereum_ERC20"}
+
+func generateOutcome() models.Outcome {
+	var otc models.Outcome
+	otc.Amount = float64(rand.Intn(viper.GetInt(config.OutcomeAmountMax)+1)) + rand.Float64()
+	otc.Token = tokens[rand.Intn(len(tokens))]
+	otc.UserID = viper.GetInt(config.OutcomeUserIDMin) + rand.Intn(viper.GetInt(config.OutcomeUserIDMax)-viper.GetInt(config.OutcomeUserIDMin))
+	return otc
+}
+
+func wait() {
+	t := time.Second * time.Duration(viper.GetInt(config.OutcomeTickerMin)+
+		rand.Intn(viper.GetInt(config.OutcomeTickerMax)-viper.GetInt(config.OutcomeTickerMin)+1))
+	time.Sleep(t)
+}
+
+func (s *static) serveOutcomesGeneration() {
+	if len(s.outcomes) == 0 {
+		s.outcomeMutex.Lock()
+		for i := 0; i < viper.GetInt(config.OutcomesAmount); i++ {
+			s.outcomes = append(s.outcomes, generateOutcome())
+		}
+		s.outcomeMutex.Unlock()
+	}
+	for {
+		wait()
+		s.outcomeMutex.Lock()
+		newOutcome := generateOutcome()
+		outcomes := []models.Outcome{newOutcome}
+		s.outcomes = append(outcomes, s.outcomes[:len(s.outcomes)-1]...)
+		s.outcomeMutex.Unlock()
+	}
 }
 
 func (s *static) CreateReview(ctx context.Context, rc models.ReviewCreate) (int, error) {
@@ -164,4 +208,10 @@ func (s *static) GetCases(ctx context.Context, page, perPage int) ([]models.Case
 	}
 
 	return cases, nil
+}
+
+func (s *static) GetOutcome() []models.Outcome {
+	s.outcomeMutex.RLock()
+	defer s.outcomeMutex.RUnlock()
+	return s.outcomes
 }

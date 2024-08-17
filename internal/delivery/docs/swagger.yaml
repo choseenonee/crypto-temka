@@ -64,6 +64,15 @@ definitions:
       current_users:
         type: integer
     type: object
+  models.Outcome:
+    properties:
+      amount:
+        type: number
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.Rate:
     properties:
       commission:
@@ -932,6 +941,33 @@ paths:
           description: Successfully
           schema:
             $ref: '#/definitions/models.Metrics'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - public
+  /public/static/outcome:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Array of outcomes
+          schema:
+            items:
+              $ref: '#/definitions/models.Outcome'
+            type: array
         "400":
           description: Invalid input
           schema:

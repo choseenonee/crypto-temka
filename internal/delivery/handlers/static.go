@@ -343,3 +343,17 @@ func (s *StaticHandler) DeleteCase(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+// GetOutcomes @Summary Get outcomes
+// @Tags public
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []models.Outcome "Array of outcomes"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /public/static/outcome [get]
+func (s *StaticHandler) GetOutcomes(c *gin.Context) {
+	oc := s.service.GetOutcome()
+
+	c.JSON(http.StatusOK, oc)
+}

@@ -18,6 +18,16 @@ const (
 	Secret     = "SECRET"
 
 	ReferPercent = "REFER_PERCENT"
+
+	OutcomeTickerMin = "OUTCOME_TICKER_MIN"
+	OutcomeTickerMax = "OUTCOME_TICKER_MAX"
+
+	OutcomeAmountMax = "OUTCOME_AMOUNT_MAX"
+
+	OutcomeUserIDMin = "OUTCOME_USERID_MIN"
+	OutcomeUserIDMax = "OUTCOME_USERID_MAX"
+
+	OutcomesAmount = "OUTCOMES_AMOUNT"
 )
 
 func InitConfig() {
