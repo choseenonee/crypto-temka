@@ -2175,7 +2175,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "profit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "properties": {},
                 "title": {
@@ -2193,7 +2193,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "profit": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "properties": {},
                 "title": {

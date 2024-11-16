@@ -82,7 +82,7 @@ definitions:
       min_lock_days:
         type: integer
       profit:
-        type: integer
+        type: number
       properties: {}
       title:
         type: string
@@ -94,7 +94,7 @@ definitions:
       min_lock_days:
         type: integer
       profit:
-        type: integer
+        type: number
       properties: {}
       title:
         type: string
