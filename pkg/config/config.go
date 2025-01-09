@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -28,6 +29,8 @@ const (
 	OutcomeUserIDMax = "OUTCOME_USERID_MAX"
 
 	OutcomesAmount = "OUTCOMES_AMOUNT"
+
+	RateWorkerFrequency = "RATE_WORKER_FREQUENCY" // in seconds
 )
 
 func InitConfig() {

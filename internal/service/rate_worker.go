@@ -3,14 +3,17 @@ package service
 import (
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/utils"
+	"crypto-temka/pkg/config"
 	"crypto-temka/pkg/log"
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/guregu/null"
-	"github.com/jmoiron/sqlx"
 	"math"
 	"time"
+
+	"github.com/guregu/null"
+	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 )
 
 type worker struct {
@@ -28,9 +31,7 @@ func InitUserRateWorker(db *sqlx.DB, logger *log.Logs) {
 }
 
 func waitRate() {
-	// todo: debug mode
-	//time.Sleep(time.Hour * 12)
-	time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * time.Duration(viper.GetInt(config.RateWorkerFrequency)))
 }
 
 func (w *worker) startWorker() {
