@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -142,7 +143,7 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 	for rows.Next() {
 		var user models.User
 		var propertiesRaw []byte
-		err = rows.Scan(&user.ID, &user.Email, &user.PhoneNumber, &user.Status, &propertiesRaw)
+		err = rows.Scan(&user.ID, &user.Email, &user.PhoneNumber, &user.Status, &user.ReferID, &propertiesRaw)
 		if err != nil {
 			return nil, err
 		}
