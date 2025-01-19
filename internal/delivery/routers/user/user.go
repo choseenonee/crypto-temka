@@ -10,7 +10,7 @@ import (
 func RegisterUserRouter(r *gin.Engine, userService service.User, mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/user")
 
-	router.Use(mdw.Authorization(false, userService.GetStatus, []string{"verified", "pending"}))
+	router.Use(mdw.Authorization(false, userService.GetStatus, []string{"declined", "opened", "pending"}))
 
 	handler := handlers.InitUserHandler(userService)
 

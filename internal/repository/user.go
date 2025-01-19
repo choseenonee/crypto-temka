@@ -207,7 +207,7 @@ func (u user) UpdateProperties(ctx context.Context, id int, properties interface
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE users SET properties = $2 WHERE id = $1;`, id, propertiesJSON)
+	res, err := tx.ExecContext(ctx, `UPDATE users SET properties = $2, status = 'pending' WHERE id = $1;`, id, propertiesJSON)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
