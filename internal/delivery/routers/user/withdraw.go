@@ -15,7 +15,7 @@ func RegisterWithdrawRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getSta
 
 	router := r.Group("/withdraw")
 
-	router.Use(mdw.Authorization(false, getStatus))
+	router.Use(mdw.Authorization(false, getStatus, []string{"verified"}))
 
 	repo := repository.InitWithdraw(db)
 	walletRepo := repository.InitWallet(db)

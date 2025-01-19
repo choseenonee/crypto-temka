@@ -176,3 +176,42 @@ func (u *UserHandler) UpdateStatus(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+type updatePropertiesInput struct {
+	Properties interface{} `json:"properties"`
+}
+
+// UpdateProperties @Summary UpdateProperties
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param properties body updatePropertiesInput true "new properties"
+// @Success 200 {object} string ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/properties [put]
+func (u *UserHandler) UpdateProperties(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userID, ok := c.Get(middleware.CUserID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "constant CUserID was not found in update properties handler"})
+		return
+	}
+
+	p := updatePropertiesInput{}
+	err := c.ShouldBindJSON(&p)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	err = u.service.UpdateProperties(ctx, userID.(int), p.Properties)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

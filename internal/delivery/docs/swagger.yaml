@@ -14,6 +14,10 @@ definitions:
       withdraw_id:
         type: integer
     type: object
+  handlers.updatePropertiesInput:
+    properties:
+      properties: {}
+    type: object
   models.Case:
     properties:
       id:
@@ -1449,6 +1453,44 @@ paths:
           description: User
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/properties:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: new properties
+        in: body
+        name: properties
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.updatePropertiesInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
         "400":
           description: Invalid input
           schema:

@@ -14,7 +14,7 @@ func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getSta
 	mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/rate")
 
-	router.Use(mdw.Authorization(false, getStatus))
+	router.Use(mdw.Authorization(false, getStatus, []string{"verified"}))
 
 	userRateRepo := repository.InitUsersRate(db)
 	walletRepo := repository.InitWallet(db)

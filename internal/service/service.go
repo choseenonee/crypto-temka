@@ -57,6 +57,7 @@ type User interface {
 	// user
 	Get(ctx context.Context, id int) (models.User, error)
 	GetStatus(id int) (string, error)
+	UpdateProperties(ctx context.Context, id int, properties interface{}) error
 
 	// admin
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)

@@ -195,3 +195,43 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 
 	return nil
 }
+
+func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}) error {
+	propertiesJSON, err := json.Marshal(properties)
+	if err != nil {
+		return err
+	}
+
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := tx.ExecContext(ctx, `UPDATE users SET properties = $2 WHERE id = $1;`, id, propertiesJSON)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", "no user found by id", rbErr)
+		}
+		return fmt.Errorf("no user found by id")
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
+}

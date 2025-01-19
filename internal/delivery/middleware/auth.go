@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
+	"slices"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ const (
 	CUserID = "userID"
 )
 
-func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, error)) gin.HandlerFunc {
+func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, error), allowedStatuses []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.Contains(auth, "Bearer") {
@@ -45,12 +46,13 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 		if !admin {
 			status, err := getStatus(id)
 			if err != nil {
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"database invalid: %v": err.Error()})
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("database invalid: %v", err.Error())})
 				return
 			}
 
-			if status != "verified" {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"your account status:": status})
+			if !slices.Contains(allowedStatuses, status) {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": fmt.Sprintf("your account status: %v, "+
+					"allowed statuses: %v", status, allowedStatuses)})
 				return
 			}
 		}

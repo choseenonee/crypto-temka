@@ -13,7 +13,7 @@ func InitAdminRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middlewa
 
 	admin.Use(mdw.Authorization(true, func(id int) (string, error) {
 		panic("wtf")
-	}))
+	}, nil))
 
 	_ = RegisterAdminStaticRouter(admin, db, logger, metricsSetFile)
 

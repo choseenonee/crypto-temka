@@ -105,3 +105,13 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 
 	return nil
 }
+
+func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}) error {
+	err := u.repo.UpdateProperties(ctx, id, properties)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}

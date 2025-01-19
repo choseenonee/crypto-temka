@@ -14,7 +14,7 @@ func RegisterReferRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getStatus
 	mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/refer")
 
-	router.Use(mdw.Authorization(false, getStatus))
+	router.Use(mdw.Authorization(false, getStatus, []string{"verified"}))
 
 	repo := repository.InitRefer(db)
 	serv := service.InitRefer(repo, logger)

@@ -14,7 +14,7 @@ func RegisterMessageRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getStat
 	mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/message")
 
-	router.Use(mdw.Authorization(false, getStatus))
+	router.Use(mdw.Authorization(false, getStatus, []string{"verified"}))
 
 	repo := repository.InitMessage(db)
 	serv := service.InitMessage(repo, logger)

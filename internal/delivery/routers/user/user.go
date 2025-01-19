@@ -10,11 +10,12 @@ import (
 func RegisterUserRouter(r *gin.Engine, userService service.User, mdw middleware.Middleware) *gin.RouterGroup {
 	router := r.Group("/user")
 
-	router.Use(mdw.Authorization(false, userService.GetStatus))
+	router.Use(mdw.Authorization(false, userService.GetStatus, []string{"verified", "pending"}))
 
 	handler := handlers.InitUserHandler(userService)
 
 	router.GET("", handler.GetMe)
+	router.PUT("/properties", handler.UpdateProperties)
 
 	return router
 }
