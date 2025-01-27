@@ -1897,6 +1897,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.updatePropertiesInput"
                         }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "if true passed, will change user status to pending. if false, won't change status.",
+                        "name": "start-verify",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {

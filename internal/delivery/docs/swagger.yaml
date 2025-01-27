@@ -1484,6 +1484,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/handlers.updatePropertiesInput'
+      - description: if true passed, will change user status to pending. if false,
+          won't change status.
+        in: query
+        name: start-verify
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
