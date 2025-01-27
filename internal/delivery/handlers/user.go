@@ -188,6 +188,7 @@ type updatePropertiesInput struct {
 // @Produce  json
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param properties body updatePropertiesInput true "new properties"
+// @Param start-verify query int true "if true passed, will change user status to pending. if false, won't change status."
 // @Success 200 {object} string ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
