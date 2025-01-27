@@ -1899,7 +1899,7 @@ const docTemplate = `{
                         }
                     },
                     {
-                        "type": "integer",
+                        "type": "boolean",
                         "description": "if true passed, will change user status to pending. if false, won't change status.",
                         "name": "start-verify",
                         "in": "query",

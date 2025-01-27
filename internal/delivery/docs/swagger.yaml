@@ -1489,7 +1489,7 @@ paths:
         in: query
         name: start-verify
         required: true
-        type: integer
+        type: boolean
       produces:
       - application/json
       responses:
