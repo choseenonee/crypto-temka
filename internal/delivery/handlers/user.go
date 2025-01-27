@@ -4,8 +4,9 @@ import (
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/service"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -194,6 +195,16 @@ type updatePropertiesInput struct {
 func (u *UserHandler) UpdateProperties(c *gin.Context) {
 	ctx := c.Request.Context()
 
+	var filter struct {
+		StartVerify bool `form:"start-verify"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
 	userID, ok := c.Get(middleware.CUserID)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "constant CUserID was not found in update properties handler"})
@@ -201,13 +212,13 @@ func (u *UserHandler) UpdateProperties(c *gin.Context) {
 	}
 
 	p := updatePropertiesInput{}
-	err := c.ShouldBindJSON(&p)
+	err = c.ShouldBindJSON(&p)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"bad input body: ": err.Error()})
 		return
 	}
 
-	err = u.service.UpdateProperties(ctx, userID.(int), p.Properties)
+	err = u.service.UpdateProperties(ctx, userID.(int), p.Properties, filter.StartVerify)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

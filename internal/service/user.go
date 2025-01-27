@@ -7,6 +7,7 @@ import (
 	"crypto-temka/internal/repository"
 	"crypto-temka/pkg/log"
 	"fmt"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -106,8 +107,8 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 	return nil
 }
 
-func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}) error {
-	err := u.repo.UpdateProperties(ctx, id, properties)
+func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}, startVerify bool) error {
+	err := u.repo.UpdateProperties(ctx, id, properties, startVerify)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

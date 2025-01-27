@@ -196,10 +196,17 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 	return nil
 }
 
-func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}) error {
+func (u user) UpdateProperties(ctx context.Context, id int, properties interface{}, startVerify bool) error {
 	propertiesJSON, err := json.Marshal(properties)
 	if err != nil {
 		return err
+	}
+
+	var query string
+	if startVerify {
+		query = `UPDATE users SET properties = $2, status = 'pending' WHERE id = $1;`
+	} else {
+		query = `UPDATE users SET properties = $2 WHERE id = $1;`
 	}
 
 	tx, err := u.db.BeginTx(ctx, nil)
@@ -207,7 +214,7 @@ func (u user) UpdateProperties(ctx context.Context, id int, properties interface
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE users SET properties = $2, status = 'pending' WHERE id = $1;`, id, propertiesJSON)
+	res, err := tx.ExecContext(ctx, query, id, propertiesJSON)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
