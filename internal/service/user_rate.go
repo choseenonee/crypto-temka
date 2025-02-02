@@ -28,6 +28,8 @@ func InitUserRate(repo repository.UsersRate, walletRepo repository.Wallet, rateR
 	}
 }
 
+var ErrLockDateNotReached = errors.New("lock date has not yet arrived")
+
 func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, error) {
 	rate, err := u.rateRepo.GetRate(ctx, urc.RateID)
 	if err != nil {
@@ -96,7 +98,7 @@ func (u userRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]m
 	return userRates, nil
 }
 
-func (u userRate) Claim(ctx context.Context, userRateID, userID int, amount float64) error {
+func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID int, amount float64) error {
 	userRate, err := u.repo.Get(ctx, userRateID)
 	if err != nil {
 		u.logger.Error(err.Error())
@@ -113,7 +115,37 @@ func (u userRate) Claim(ctx context.Context, userRateID, userID int, amount floa
 		return err
 	}
 
-	err = u.repo.Claim(ctx, userRateID, wallet.ID, amount)
+	err = u.repo.ClaimOutcome(ctx, userRateID, wallet.ID, amount)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (u userRate) ClaimDeposit(ctx context.Context, userRateID, userID int, amount float64) error {
+	userRate, err := u.repo.Get(ctx, userRateID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	if userRate.UserID != userID {
+		return fmt.Errorf("forbidden")
+	}
+
+	if time.Now().Sub(userRate.Lock) < 0 {
+		return ErrLockDateNotReached
+	}
+
+	wallet, err := u.walletRepo.GetByToken(ctx, userRate.UserID, userRate.Token)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	err = u.repo.ClaimDeposit(ctx, userRateID, wallet.ID, amount)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

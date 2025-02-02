@@ -116,15 +116,50 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
 	return userRates, nil
 }
 
-// todo: сюда чтобы депозит тоже забирался если amount > . если забрали всё то soft-delete тарифчик
-
-func (u usersRate) Claim(ctx context.Context, userRateID, walletID int, amount float64) error {
+func (u usersRate) ClaimOutcome(ctx context.Context, userRateID, walletID int, amount float64) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	_, err = tx.ExecContext(ctx, `UPDATE users_rates SET outcome_pool = outcome_pool - $2 WHERE id = $1;`,
+		userRateID, amount)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2, outcome = outcome + $2 WHERE id = $1`, walletID, amount)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, walletID int, amount float64) error {
+	tx, err := u.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `UPDATE users_rates SET deposit = deposit - $2 WHERE id = $1;`,
 		userRateID, amount)
 	if err != nil {
 		rbErr := tx.Rollback()

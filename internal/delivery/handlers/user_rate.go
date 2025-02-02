@@ -130,7 +130,7 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 	c.JSON(http.StatusOK, rate)
 }
 
-// Claim @Summary Claim from outcome pool
+// ClaimOutcome @Summary Claim from outcome pool
 // @Tags rate
 // @Accept  json
 // @Produce  json
@@ -140,8 +140,8 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /rate/claim [put]
-func (s *UserRateHandler) Claim(c *gin.Context) {
+// @Router /rate/claim_outcome [put]
+func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	var filter struct {
@@ -161,7 +161,48 @@ func (s *UserRateHandler) Claim(c *gin.Context) {
 		return
 	}
 
-	err = s.service.Claim(ctx, filter.UserRateID, userID.(int), filter.Amount)
+	err = s.service.ClaimOutcome(ctx, filter.UserRateID, userID.(int), filter.Amount)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// ClaimDeposit @Summary Claim deposit body
+// @Tags rate
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param amount query float64 true "amount"
+// @Param user_rate_id query int true "userRateID"
+// @Success 200 {object} nil ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 400 {object} map[string]string "Lock date has not yet arrived"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /rate/claim_deposit [put]
+func (s *UserRateHandler) ClaimDeposit(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var filter struct {
+		UserRateID int     `form:"user_rate_id"`
+		Amount     float64 `form:"amount"`
+	}
+
+	err := c.BindQuery(&filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad query: ": err.Error()})
+		return
+	}
+
+	userID, ok := c.Get(middleware.CUserID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "CUserID was not found in get user rate handler"})
+		return
+	}
+
+	err = s.service.ClaimDeposit(ctx, filter.UserRateID, userID.(int), filter.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

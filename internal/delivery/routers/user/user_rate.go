@@ -27,7 +27,8 @@ func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getSta
 	router.POST("", handler.CreateUserRate)
 	router.GET("/user", handler.GetUserRates)
 	router.GET("", handler.GetUserRate)
-	router.PUT("/claim", handler.Claim)
+	router.PUT("/claim_outcome", handler.ClaimOutcome)
+	router.PUT("/claim_deposit", handler.ClaimDeposit)
 
 	return router
 }

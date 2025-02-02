@@ -29,7 +29,8 @@ type UsersRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	Claim(ctx context.Context, userRateID, walletID int, amount float64) error
+	ClaimOutcome(ctx context.Context, userRateID, walletID int, amount float64) error
+	ClaimDeposit(ctx context.Context, userRateID, walletID int, amount float64) error
 	GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error)
 	UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error
 }

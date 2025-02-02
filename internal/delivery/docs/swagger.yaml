@@ -1272,7 +1272,47 @@ paths:
             type: object
       tags:
       - rate
-  /rate/claim:
+  /rate/claim_deposit:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: amount
+        in: query
+        name: amount
+        required: true
+        type: number
+      - description: userRateID
+        in: query
+        name: user_rate_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Lock date has not yet arrived
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - rate
+  /rate/claim_outcome:
     put:
       consumes:
       - application/json
