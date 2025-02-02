@@ -87,3 +87,11 @@ type Message interface {
 	GetByID(ctx context.Context, id, userID int) (models.Message, error)
 	GetByUser(ctx context.Context, userID int) ([]models.Message, error)
 }
+
+type Voucher interface {
+	GetVoucherByID(ctx context.Context, id string) (models.Voucher, error)
+	CreateVoucher(ctx context.Context, id, voucherType string, properties []byte) error
+	GetAllVouchers(ctx context.Context, offset, limit int) ([]models.Voucher, error)
+	UpdateVoucher(ctx context.Context, id, voucherType string, properties []byte) error
+	DeleteVoucher(ctx context.Context, id string) error
+}
