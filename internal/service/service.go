@@ -90,8 +90,8 @@ type Message interface {
 
 type Voucher interface {
 	GetVoucherByID(ctx context.Context, id string) (models.Voucher, error)
-	CreateVoucher(ctx context.Context, id, voucherType string, properties []byte) error
+	CreateVoucher(ctx context.Context, id, voucherType string, properties interface{}) error
 	GetAllVouchers(ctx context.Context, offset, limit int) ([]models.Voucher, error)
-	UpdateVoucher(ctx context.Context, id, voucherType string, properties []byte) error
+	UpdateVoucher(ctx context.Context, id, voucherType string, properties interface{}) error
 	DeleteVoucher(ctx context.Context, id string) error
 }

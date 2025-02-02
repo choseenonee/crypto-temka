@@ -26,4 +26,6 @@ func InitAdminRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middlewa
 	_ = RegisterAdminMessageRouter(admin, db, logger)
 
 	_ = RegisterAdminUserRateRouter(admin, db, logger)
+
+	_ = RegisterAdminVoucherRouter(admin, db, logger)
 }

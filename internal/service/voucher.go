@@ -5,7 +5,11 @@ import (
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
 	"crypto-temka/pkg/log"
+	"encoding/json"
+	"errors"
 )
+
+var ErrInvalidJSON = errors.New("invalid JSON")
 
 type voucherService struct {
 	logger *log.Logs
@@ -29,8 +33,14 @@ func (v voucherService) GetVoucherByID(ctx context.Context, id string) (models.V
 	return voucher, nil
 }
 
-func (v voucherService) CreateVoucher(ctx context.Context, id, voucherType string, properties []byte) error {
-	err := v.repo.CreateVoucher(ctx, id, voucherType, properties)
+func (v voucherService) CreateVoucher(ctx context.Context, id, voucherType string, properties interface{}) error {
+	propertiesJSON, err := json.Marshal(properties)
+	if err != nil {
+		v.logger.Error(err.Error())
+		return ErrInvalidJSON
+	}
+
+	err = v.repo.CreateVoucher(ctx, id, voucherType, propertiesJSON)
 	if err != nil {
 		v.logger.Error(err.Error())
 		return err
@@ -49,8 +59,14 @@ func (v voucherService) GetAllVouchers(ctx context.Context, offset, limit int) (
 	return vouchers, nil
 }
 
-func (v voucherService) UpdateVoucher(ctx context.Context, id, voucherType string, properties []byte) error {
-	err := v.repo.UpdateVoucher(ctx, id, voucherType, properties)
+func (v voucherService) UpdateVoucher(ctx context.Context, id, voucherType string, properties interface{}) error {
+	propertiesJSON, err := json.Marshal(properties)
+	if err != nil {
+		v.logger.Error(err.Error())
+		return ErrInvalidJSON
+	}
+
+	err = v.repo.UpdateVoucher(ctx, id, voucherType, propertiesJSON)
 	if err != nil {
 		v.logger.Error(err.Error())
 		return err

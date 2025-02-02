@@ -8,6 +8,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.19.0
 	github.com/swaggo/files v1.0.1

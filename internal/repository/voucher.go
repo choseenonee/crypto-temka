@@ -60,7 +60,7 @@ func (v voucherRepo) GetAllVouchers(ctx context.Context, offset, limit int) ([]m
 	for rows.Next() {
 		var voucher models.Voucher
 		var propertiesRaw []byte
-		err = rows.Scan(&voucher.Id, &voucher.VoucherType, &voucher.Properties, &propertiesRaw)
+		err = rows.Scan(&voucher.Id, &voucher.VoucherType, &propertiesRaw)
 		if err != nil {
 			return nil, fmt.Errorf("voucherRepo.GetAllVouchers - rows.Scan: %v", err)
 		}

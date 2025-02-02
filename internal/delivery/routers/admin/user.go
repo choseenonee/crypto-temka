@@ -2,7 +2,6 @@ package admin
 
 import (
 	"crypto-temka/internal/delivery/handlers"
-	"crypto-temka/internal/delivery/middleware/auth"
 	"crypto-temka/internal/repository"
 	"crypto-temka/internal/service"
 	"crypto-temka/pkg/log"
@@ -10,19 +9,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RegisterAdminUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
-	router := r.Group("/user")
+func RegisterAdminVoucherRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) *gin.RouterGroup {
+	router := r.Group("/voucher")
 
-	userRepo := repository.InitUser(db)
+	voucherRepo := repository.InitVoucherRepo(db)
 
-	jwt := auth.InitJWTUtil()
+	voucherService := service.InitVoucherService(voucherRepo, logger)
 
-	userService := service.InitUser(userRepo, jwt, logger)
+	handler := handlers.InitVoucherHandler(voucherService)
 
-	handler := handlers.InitUserHandler(userService)
-
-	router.GET("/all", handler.GetAll)
-	router.PUT("/status", handler.UpdateStatus)
+	router.POST("", handler.CreateVoucher)
+	router.GET("", handler.GetAllVouchers)
+	router.PUT("", handler.UpdateVoucher)
+	router.DELETE("", handler.DeleteVoucher)
 
 	return router
 }
