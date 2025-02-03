@@ -4,8 +4,11 @@ import (
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/service"
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type UserRateHandler struct {
@@ -45,6 +48,18 @@ func (s *UserRateHandler) CreateUserRate(c *gin.Context) {
 
 	id, err := s.service.Create(ctx, urc)
 	if err != nil {
+		if errors.Is(err, service.ErrAlreadyUsedPerOnceRate) {
+			c.JSON(http.StatusTeapot, gin.H{"message": err.Error()})
+			return
+		}
+		if errors.Is(err, service.ErrInappropriateVoucherType) || errors.Is(err, service.ErrUnusedVoucher) {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		if strings.Contains(err.Error(), "pq: duplicate key value violates unique constraint") {
+			c.JSON(http.StatusBadRequest, gin.H{"message": fmt.Sprintf("you already used this voucher: %v", err.Error())})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

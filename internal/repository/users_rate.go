@@ -6,19 +6,20 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
 
-type usersRate struct {
+type usersRateRepo struct {
 	db *sqlx.DB
 }
 
 func InitUsersRate(db *sqlx.DB) UsersRate {
-	return usersRate{db: db}
+	return usersRateRepo{db: db}
 }
 
-func (u usersRate) Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error) {
+func (u usersRateRepo) Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error) {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -33,6 +34,17 @@ func (u usersRate) Create(ctx context.Context, urc models.UserRateCreate, wallet
 			return 0, fmt.Errorf("err: %v, rbErr: %v", err, rbErr)
 		}
 		return 0, err
+	}
+
+	if urc.VoucherID != nil {
+		_, err = tx.ExecContext(ctx, `INSERT INTO users_vouchers VALUES ($1, $2)`, urc.UserID, *urc.VoucherID)
+		if err != nil {
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				return 0, fmt.Errorf("usersRateRepo.Create - tx.ExecContext - users_vouchers: %v, tx rollback err: %v", err, rbErr)
+			}
+			return 0, fmt.Errorf("usersRateRepo.Create - tx.ExecContext - users_vouchers: %v", err)
+		}
 	}
 
 	row := tx.QueryRowContext(ctx, `INSERT INTO users_rates (user_id, rate_id, lock, last_updated, opened, deposit, token) 
@@ -68,7 +80,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
 	return id, nil
 }
 
-func (u usersRate) Get(ctx context.Context, id int) (models.UserRate, error) {
+func (u usersRateRepo) Get(ctx context.Context, id int) (models.UserRate, error) {
 	row := u.db.QueryRowContext(ctx, `SELECT id, user_id, rate_id, lock, opened, deposit, 
        earned_pool, outcome_pool, token FROM users_rates WHERE id = $1;`, id)
 
@@ -85,7 +97,7 @@ func (u usersRate) Get(ctx context.Context, id int) (models.UserRate, error) {
 	return userRate, nil
 }
 
-func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error) {
+func (u usersRateRepo) GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error) {
 	rows, err := u.db.QueryContext(ctx, `SELECT id, user_id, rate_id, lock, opened, deposit, 
        earned_pool, outcome_pool, token FROM users_rates WHERE user_id = $3 OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage, userID)
@@ -116,7 +128,7 @@ func (u usersRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]
 	return userRates, nil
 }
 
-func (u usersRate) ClaimOutcome(ctx context.Context, userRateID, walletID int, amount float64) error {
+func (u usersRateRepo) ClaimOutcome(ctx context.Context, userRateID, walletID int, amount float64) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -153,7 +165,7 @@ func (u usersRate) ClaimOutcome(ctx context.Context, userRateID, walletID int, a
 	return nil
 }
 
-func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, walletID int, amount float64) error {
+func (u usersRateRepo) ClaimDeposit(ctx context.Context, userRateID, walletID int, amount float64) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -190,7 +202,7 @@ func (u usersRate) ClaimDeposit(ctx context.Context, userRateID, walletID int, a
 	return nil
 }
 
-func (u usersRate) GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error) {
+func (u usersRateRepo) GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error) {
 	var err error
 	var rows *sql.Rows
 	if userID != 0 {
@@ -230,7 +242,7 @@ func (u usersRate) GetAll(ctx context.Context, userID, page, perPage int) ([]mod
 	return userRates, nil
 }
 
-func (u usersRate) UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error {
+func (u usersRateRepo) UpdateNextDayCharge(ctx context.Context, userRateID int, nextDayCharge float64) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -264,4 +276,15 @@ func (u usersRate) UpdateNextDayCharge(ctx context.Context, userRateID int, next
 	}
 
 	return nil
+}
+
+func (u usersRateRepo) CheckIfUserUsedRateById(ctx context.Context, rateID int) (bool, error) {
+	var flag null.Int
+	err := u.db.QueryRowContext(ctx, `SELECT 1 FROM users_rates WHERE rate_id = $1`,
+		rateID).Scan(&flag)
+	if err != nil {
+		return false, fmt.Errorf("usersRateRepo.CheckIfUserUsedRateById - v.db.QueryRowContext: %v", err)
+	}
+
+	return flag.Valid, nil
 }

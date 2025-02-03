@@ -107,6 +107,8 @@ definitions:
         type: integer
       id:
         type: integer
+      is_once:
+        type: boolean
       min_lock_days:
         type: integer
       profit:
@@ -119,6 +121,8 @@ definitions:
     properties:
       commission:
         type: integer
+      is_once:
+        type: boolean
       min_lock_days:
         type: integer
       profit:
@@ -204,6 +208,8 @@ definitions:
         type: string
       user_id:
         type: integer
+      voucher_id:
+        type: string
     type: object
   models.UserRateAdmin:
     properties:
@@ -227,6 +233,8 @@ definitions:
         type: string
       user_id:
         type: integer
+      voucher_id:
+        type: string
     type: object
   models.UserRateCreate:
     properties:
@@ -240,6 +248,8 @@ definitions:
         type: string
       user_id:
         type: integer
+      voucher_id:
+        type: string
     type: object
   models.Voucher:
     properties:

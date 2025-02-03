@@ -19,8 +19,9 @@ func RegisterUserRateRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, getSta
 	userRateRepo := repository.InitUsersRate(db)
 	walletRepo := repository.InitWallet(db)
 	rateRepo := repository.InitRate(db)
+	voucherRepo := repository.InitVoucherRepo(db)
 
-	userRateService := service.InitUserRate(userRateRepo, walletRepo, rateRepo, logger)
+	userRateService := service.InitUserRate(userRateRepo, walletRepo, rateRepo, logger, voucherRepo)
 
 	handler := handlers.InitUserRateHandler(userRateService)
 

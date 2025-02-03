@@ -29,9 +29,9 @@ func (r rate) CreateRate(ctx context.Context, rc models.RateCreate) (int, error)
 		return 0, err
 	}
 
-	row := tx.QueryRowContext(ctx, `INSERT INTO rates (title, profit, min_lock_days, commission, properties) 
-VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-		rc.Title, rc.Profit, rc.MinLockDays, rc.Commission, propertiesJSON)
+	row := tx.QueryRowContext(ctx, `INSERT INTO rates (title, profit, min_lock_days, commission, properties, is_once) 
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+		rc.Title, rc.Profit, rc.MinLockDays, rc.Commission, propertiesJSON, rc.IsOnce)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -63,7 +63,7 @@ VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 }
 
 func (r rate) GetRates(ctx context.Context, page, perPage int) ([]models.Rate, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties 
+	rows, err := r.db.QueryContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties, is_once 
 FROM rates OFFSET $1 LIMIT $2`,
 		(page-1)*perPage, perPage)
 	if err != nil {
@@ -77,7 +77,7 @@ FROM rates OFFSET $1 LIMIT $2`,
 	for rows.Next() {
 		var rate models.Rate
 		var propertiesRaw []byte
-		err = rows.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw)
+		err = rows.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw, &rate.IsOnce)
 		if err != nil {
 			return nil, err
 		}
@@ -107,9 +107,9 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE rates
-											SET title = $2, profit = $3, min_lock_days = $4, commission = $5, properties = $6
+											SET title = $2, profit = $3, min_lock_days = $4, commission = $5, properties = $6, is_once = $7
 											WHERE id = $1`,
-		ru.ID, ru.Title, ru.Profit, ru.MinLockDays, ru.Commission, propertiesJSON)
+		ru.ID, ru.Title, ru.Profit, ru.MinLockDays, ru.Commission, propertiesJSON, ru.IsOnce)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -139,11 +139,11 @@ func (r rate) UpdateRate(ctx context.Context, ru models.Rate) error {
 }
 
 func (r rate) GetRate(ctx context.Context, id int) (models.Rate, error) {
-	row := r.db.QueryRowContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties FROM rates WHERE id = $1;`, id)
+	row := r.db.QueryRowContext(ctx, `SELECT id, title, profit, min_lock_days, commission, properties, is_once FROM rates WHERE id = $1;`, id)
 
 	var rate models.Rate
 	var propertiesRaw []byte
-	err := row.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw)
+	err := row.Scan(&rate.ID, &rate.Title, &rate.Profit, &rate.MinLockDays, &rate.Commission, &propertiesRaw, &rate.IsOnce)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Rate{}, fmt.Errorf("rate not found with id %v", id)

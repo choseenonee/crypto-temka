@@ -13,22 +13,28 @@ import (
 )
 
 type userRate struct {
-	logger     *log.Logs
-	repo       repository.UsersRate
-	walletRepo repository.Wallet
-	rateRepo   repository.Rate
+	logger      *log.Logs
+	repo        repository.UsersRate
+	walletRepo  repository.Wallet
+	rateRepo    repository.Rate
+	voucherRepo repository.Voucher
 }
 
-func InitUserRate(repo repository.UsersRate, walletRepo repository.Wallet, rateRepo repository.Rate, logger *log.Logs) UserRate {
+func InitUserRate(repo repository.UsersRate, walletRepo repository.Wallet, rateRepo repository.Rate, logger *log.Logs,
+	voucherRepo repository.Voucher) UserRate {
 	return userRate{
-		logger:     logger,
-		repo:       repo,
-		walletRepo: walletRepo,
-		rateRepo:   rateRepo,
+		logger:      logger,
+		repo:        repo,
+		walletRepo:  walletRepo,
+		rateRepo:    rateRepo,
+		voucherRepo: voucherRepo,
 	}
 }
 
 var ErrLockDateNotReached = errors.New("lock date has not yet arrived")
+var ErrAlreadyUsedPerOnceRate = errors.New("you already used per once rate, so you need to pass voucher if you have one")
+var ErrInappropriateVoucherType = errors.New("you passed voucher with different voucher type, try other one")
+var ErrUnusedVoucher = errors.New("you passed voucher, but it would do nothing")
 
 func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, error) {
 	rate, err := u.rateRepo.GetRate(ctx, urc.RateID)
@@ -63,6 +69,32 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 		err = errors.New(fmt.Sprintf("not enough money on wallet with token %v", urc.Token))
 		u.logger.Error(err.Error())
 		return 0, err
+	}
+
+	if rate.IsOnce {
+		// rate available only once per user if user has no voucher
+		flag, err := u.repo.CheckIfUserUsedRateById(ctx, urc.RateID)
+		if err != nil {
+			return 0, fmt.Errorf("userRate.Create - u.repo.CheckIfUserUsedRateById: %v", err)
+		}
+
+		if flag {
+			// user had used is_once rate, so we need to check if he passed voucher with needed type
+			if urc.VoucherID == nil {
+				return 0, ErrAlreadyUsedPerOnceRate
+			}
+			voucher, err := u.voucherRepo.GetVoucherByID(ctx, *urc.VoucherID)
+			if err != nil {
+				return 0, fmt.Errorf("userRate.Create - u.voucherRepo.GetVoucherByID: %v", err)
+			}
+			if voucher.VoucherType != models.PerOnceVoucher {
+				return 0, ErrInappropriateVoucherType
+			}
+		}
+	} else {
+		if urc.VoucherID != nil {
+			return 0, ErrUnusedVoucher
+		}
 	}
 
 	id, err := u.repo.Create(ctx, urc, wallet.ID)

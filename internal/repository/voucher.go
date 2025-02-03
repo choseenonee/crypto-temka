@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
@@ -23,7 +24,7 @@ func InitVoucherRepo(db *sqlx.DB) Voucher {
 func (v voucherRepo) GetVoucherByID(ctx context.Context, id string) (models.Voucher, error) {
 	var voucher models.Voucher
 	var propertiesRaw []byte
-	err := v.db.QueryRowContext(ctx, `SELECT id, type, properties FROM vouchers WHERE id = $1`).Scan(
+	err := v.db.QueryRowContext(ctx, `SELECT id, type, properties FROM vouchers WHERE id = $1`, id).Scan(
 		&voucher.Id, &voucher.VoucherType, &propertiesRaw)
 	if err != nil {
 		return models.Voucher{}, fmt.Errorf("voucherRepo.GetVoucherByID - v.db.QueryRowContext: %v", err)
@@ -106,4 +107,24 @@ func (v voucherRepo) DeleteVoucher(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (v voucherRepo) CreateUserVoucher(ctx context.Context, userID int, voucherID string) error {
+	_, err := v.db.ExecContext(ctx, `INSERT INTO users_vouchers VALUES ($1, $2)`, userID, voucherID)
+	if err != nil {
+		return fmt.Errorf("voucherRepo.CreateUserVoucher - v.db.ExecContext: %v", err)
+	}
+
+	return nil
+}
+
+func (v voucherRepo) GetUserVoucher(ctx context.Context, userID int, voucherID string) (bool, error) {
+	var flag null.Int
+	err := v.db.QueryRowContext(ctx, `SELECT 1 FROM users_vouchers WHERE user_id = $1 AND voucher_id = $2`,
+		userID, voucherID).Scan(&flag)
+	if err != nil {
+		return false, fmt.Errorf("voucherRepo.GetUserVoucher - v.db.QueryRowContext: %v", err)
+	}
+
+	return flag.Valid, nil
 }

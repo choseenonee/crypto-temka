@@ -5,11 +5,12 @@ import (
 )
 
 type UserRateCreate struct {
-	UserID  int       `json:"user_id,omitempty"`
-	RateID  int       `json:"rate_id"`
-	Lock    time.Time `json:"lock"`
-	Deposit float64   `json:"deposit"`
-	Token   string    `json:"token"`
+	UserID    int       `json:"user_id,omitempty"`
+	RateID    int       `json:"rate_id"`
+	Lock      time.Time `json:"lock"`
+	Deposit   float64   `json:"deposit"`
+	Token     string    `json:"token"`
+	VoucherID *string   `json:"voucher_id"`
 }
 
 type UserRate struct {

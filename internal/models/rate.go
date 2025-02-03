@@ -6,6 +6,7 @@ type RateCreate struct {
 	MinLockDays int         `json:"min_lock_days"`
 	Commission  int         `json:"commission"`
 	Properties  interface{} `json:"properties"`
+	IsOnce      bool        `json:"is_once"`
 }
 
 type Rate struct {

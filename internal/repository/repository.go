@@ -29,6 +29,7 @@ type UsersRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
+	CheckIfUserUsedRateById(ctx context.Context, rateID int) (bool, error)
 	ClaimOutcome(ctx context.Context, userRateID, walletID int, amount float64) error
 	ClaimDeposit(ctx context.Context, userRateID, walletID int, amount float64) error
 	GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error)
@@ -79,4 +80,8 @@ type Voucher interface {
 	// UpdateVoucher properties must be a valid json
 	UpdateVoucher(ctx context.Context, id, voucherType string, properties []byte) error
 	DeleteVoucher(ctx context.Context, id string) error
+
+	// Users vouchers
+	CreateUserVoucher(ctx context.Context, userID int, voucherID string) error
+	GetUserVoucher(ctx context.Context, userID int, voucherID string) (bool, error)
 }

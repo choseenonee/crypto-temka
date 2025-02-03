@@ -2556,6 +2556,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_once": {
+                    "type": "boolean"
+                },
                 "min_lock_days": {
                     "type": "integer"
                 },
@@ -2573,6 +2576,9 @@ const docTemplate = `{
             "properties": {
                 "commission": {
                     "type": "integer"
+                },
+                "is_once": {
+                    "type": "boolean"
                 },
                 "min_lock_days": {
                     "type": "integer"
@@ -2701,6 +2707,9 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "voucher_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2736,6 +2745,9 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "voucher_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2756,6 +2768,9 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "voucher_id": {
+                    "type": "string"
                 }
             }
         },
