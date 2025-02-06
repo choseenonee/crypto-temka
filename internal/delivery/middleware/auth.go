@@ -19,7 +19,7 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 		auth := c.GetHeader("Authorization")
 		if !strings.Contains(auth, "Bearer") {
 			m.logger.Info(fmt.Sprintf("unathorized (NO JWT) access at: %v", c.Request.URL.Path))
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "no bearer provided in authorization"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "no bearer provided in authorization"})
 			return
 		}
 
@@ -30,22 +30,22 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 		if err != nil {
 			if errors.Is(err, jwt.ErrTokenExpired) {
 				m.logger.Info(fmt.Sprintf("token expired at: %v", c.Request.URL.Path))
-				c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"detail": "JWT expired"})
+				c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"message": "JWT expired"})
 				return
 			}
 			m.logger.Error(fmt.Sprintf("token parse error at: %v", c.Request.URL.Path))
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"detail": "error on parsing JWT"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "error on parsing JWT"})
 			return
 		}
 
 		if admin {
 			if !isAdmin {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only admin token for this endpoint"})
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "only admin token for this endpoint"})
 				return
 			}
 		} else {
 			if isAdmin {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only user token for this endpoint"})
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "only user token for this endpoint"})
 				return
 			}
 		}
@@ -58,7 +58,7 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 			}
 
 			if !slices.Contains(allowedStatuses, status) {
-				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": fmt.Sprintf("your account status: %v, "+
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": fmt.Sprintf("your account status: %v, "+
 					"allowed statuses: %v", status, allowedStatuses)})
 				return
 			}
