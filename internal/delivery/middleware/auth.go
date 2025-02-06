@@ -38,9 +38,16 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 			return
 		}
 
-		if isAdmin != admin {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only admin token for this endpoint"})
-			return
+		if admin {
+			if !isAdmin {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only admin token for this endpoint"})
+				return
+			}
+		} else {
+			if isAdmin {
+				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"detail": "only user token for this endpoint"})
+				return
+			}
 		}
 
 		if !admin {
