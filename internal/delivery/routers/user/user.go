@@ -8,14 +8,19 @@ import (
 )
 
 func RegisterUserRouter(r *gin.Engine, userService service.User, mdw middleware.Middleware) *gin.RouterGroup {
-	router := r.Group("/user")
+	verifiedUserRouter := r.Group("/user")
 
-	router.Use(mdw.Authorization(false, userService.GetStatus, []string{"declined", "opened", "pending"}))
+	verifiedUserRouter.Use(mdw.Authorization(false, userService.GetStatus, []string{"verified", "declined", "opened", "pending"}))
 
 	handler := handlers.InitUserHandler(userService)
 
-	router.GET("", handler.GetMe)
-	router.PUT("/properties", handler.UpdateProperties)
+	verifiedUserRouter.GET("", handler.GetMe)
 
-	return router
+	notVerifiedUserRouter := r.Group("/user/properties")
+
+	notVerifiedUserRouter.Use(mdw.Authorization(false, userService.GetStatus, []string{"declined", "opened", "pending"}))
+
+	notVerifiedUserRouter.PUT("/", handler.UpdateProperties)
+
+	return nil
 }
