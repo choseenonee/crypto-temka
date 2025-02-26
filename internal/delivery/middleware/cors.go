@@ -27,10 +27,10 @@ func (m Middleware) CORS() gin.HandlerFunc {
 		AllowHeaders: []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization",
 			"accept", "origin", "Cache-Control", "X-Requested-With"},
 		AllowCredentials: true,
-		AllowOrigins:     []string{"https://admin.ai-trade.net", "http://localhost:3000"},
-		//AllowOriginFunc: func(origin string) bool {
-		//	return true
-		//},
+		//AllowOrigins:     []string{"https://admin.ai-trade.net", "http://localhost:3000"},
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
 		MaxAge: 1 * time.Hour,
 	})
 }
