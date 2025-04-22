@@ -3,11 +3,12 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"slices"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 const (
@@ -33,8 +34,8 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 				c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"message": "JWT expired"})
 				return
 			}
-			m.logger.Error(fmt.Sprintf("token parse error at: %v", c.Request.URL.Path))
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "error on parsing JWT"})
+			m.logger.Error(fmt.Sprintf("token parse error: %v at: %v", err, c.Request.URL.Path))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": fmt.Sprintf("error on parsing JWT: %v", err)})
 			return
 		}
 
