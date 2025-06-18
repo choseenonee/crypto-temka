@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"crypto-temka/internal/models"
 )
 
@@ -37,6 +38,7 @@ type UsersRate interface {
 }
 
 type Wallet interface {
+	Insert(ctx context.Context, userID int, token string, amount int) error
 	GetByUser(ctx context.Context, userID int) ([]models.Wallet, error)
 	GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error)
 }

@@ -14,6 +14,7 @@ type UserCreate struct {
 
 type User struct {
 	UserBase
-	ID     int    `json:"id"`
-	Status string `json:"status"`
+	ID      int      `json:"id"`
+	Status  string   `json:"status"`
+	Wallets []Wallet `json:"wallets"`
 }

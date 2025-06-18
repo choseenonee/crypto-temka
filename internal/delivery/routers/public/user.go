@@ -6,6 +6,7 @@ import (
 	"crypto-temka/internal/repository"
 	"crypto-temka/internal/service"
 	"crypto-temka/pkg/log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +18,9 @@ func RegisterPublicUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs)
 
 	jwt := auth.InitJWTUtil()
 
-	userService := service.InitUser(userRepo, jwt, logger)
+	walletRepo := repository.InitWallet(db)
+
+	userService := service.InitUser(userRepo, walletRepo, jwt, logger)
 
 	handler := handlers.InitUserHandler(userService)
 

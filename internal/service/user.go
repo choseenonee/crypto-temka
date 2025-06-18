@@ -2,26 +2,29 @@ package service
 
 import (
 	"context"
+	"fmt"
+
 	"crypto-temka/internal/delivery/middleware/auth"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
 	"crypto-temka/pkg/log"
-	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type user struct {
-	logger *log.Logs
-	repo   repository.User
-	jwt    auth.JWTUtil
+	logger     *log.Logs
+	repo       repository.User
+	walletRepo repository.Wallet
+	jwt        auth.JWTUtil
 }
 
-func InitUser(repo repository.User, jwt auth.JWTUtil, logger *log.Logs) User {
+func InitUser(repo repository.User, walletRepo repository.Wallet, jwt auth.JWTUtil, logger *log.Logs) User {
 	return user{
-		logger: logger,
-		repo:   repo,
-		jwt:    jwt,
+		logger:     logger,
+		repo:       repo,
+		walletRepo: walletRepo,
+		jwt:        jwt,
 	}
 }
 
@@ -74,6 +77,12 @@ func (u user) Get(ctx context.Context, id int) (models.User, error) {
 		return models.User{}, err
 	}
 
+	user.Wallets, err = u.walletRepo.GetByUser(ctx, id)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return models.User{}, err
+	}
+
 	return user, nil
 }
 
@@ -82,6 +91,14 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 	if err != nil {
 		u.logger.Error(err.Error())
 		return nil, err
+	}
+
+	for _, user := range users {
+		user.Wallets, err = u.walletRepo.GetByUser(ctx, user.ID)
+		if err != nil {
+			u.logger.Error(err.Error())
+			return nil, err
+		}
 	}
 
 	return users, nil

@@ -2,15 +2,47 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"crypto-temka/internal/models"
+
 	"github.com/jmoiron/sqlx"
 )
 
 type wallet struct {
 	db *sqlx.DB
+}
+
+func InitWallet(db *sqlx.DB) Wallet {
+	return wallet{db: db}
+}
+
+// TODO: if there is no wallet found, then create one
+func (w wallet) Insert(ctx context.Context, userID int, token string, amount int) error {
+	res, err := w.db.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE user_id = $1 AND token = $3`, userID, amount, token)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("no wallets were found by userID: %v and token: %v", userID, token)
+		}
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		_, err := w.db.ExecContext(ctx, `INSERT INTO wallets (user_id, token, deposit, outcome) VALUES ($1, $2, $3, $4)`,
+			userID, token, amount, 0)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (w wallet) GetByUser(ctx context.Context, userID int) ([]models.Wallet, error) {
@@ -55,8 +87,4 @@ func (w wallet) GetByToken(ctx context.Context, userID int, token string) (model
 	}
 
 	return wallet, nil
-}
-
-func InitWallet(db *sqlx.DB) Wallet {
-	return wallet{db: db}
 }
