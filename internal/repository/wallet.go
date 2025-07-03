@@ -20,7 +20,7 @@ func InitWallet(db *sqlx.DB) Wallet {
 }
 
 // TODO: if there is no wallet found, then create one
-func (w wallet) Insert(ctx context.Context, userID int, token string, amount int) error {
+func (w wallet) Insert(ctx context.Context, userID int, token string, amount float64) error {
 	res, err := w.db.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE user_id = $1 AND token = $3`, userID, amount, token)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

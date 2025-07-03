@@ -38,7 +38,7 @@ type UsersRate interface {
 }
 
 type Wallet interface {
-	Insert(ctx context.Context, userID int, token string, amount int) error
+	Insert(ctx context.Context, userID int, token string, amount float64) error
 	GetByUser(ctx context.Context, userID int) ([]models.Wallet, error)
 	GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error)
 }

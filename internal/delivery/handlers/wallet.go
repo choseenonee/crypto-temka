@@ -17,10 +17,10 @@ func InitWalletHandler(repo repository.Wallet) WalletHandler {
 }
 
 type insertWalletInput struct {
-	Token    string `json:"token"`
-	Amount   int    `json:"amount"`
-	UserID   int    `json:"user_id"`
-	Password string `json:"password"`
+	Token    string  `json:"token"`
+	Amount   float64 `json:"amount"`
+	UserID   int     `json:"user_id"`
+	Password string  `json:"password"`
 }
 
 // Create @Summary Insert amount of token to user
