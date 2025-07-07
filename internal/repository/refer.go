@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
-	"crypto-temka/pkg/config"
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"crypto-temka/internal/models"
+	"crypto-temka/pkg/config"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )
@@ -83,6 +85,7 @@ func (r refer) Claim(ctx context.Context, id, userID int) error {
 
 	amount = amount * viper.GetFloat64(config.ReferPercent) / 100
 
+	// todo: если такого кошелька не существует, упадем
 	res, err := tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1, outcome = outcome + $1 WHERE user_id = $2 AND token = $3`,
 		amount, userID, token)
 	if err != nil {
