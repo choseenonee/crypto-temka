@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	"crypto-temka/internal/models"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -167,7 +168,7 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1 AND status = 'opened';`, id, status)
+	res, err := tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1 AND status = 'pending';`, id, status)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
