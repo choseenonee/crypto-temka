@@ -12,6 +12,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const UserPendingStatus = "pending"
+
 type user struct {
 	db *sqlx.DB
 }
@@ -168,7 +170,7 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1 AND status = 'pending';`, id, status)
+	res, err := tx.ExecContext(ctx, `UPDATE users SET status = $2 WHERE id = $1 AND status = $3;`, id, status, UserPendingStatus)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -180,9 +182,9 @@ func (u user) UpdateStatus(ctx context.Context, id int, status string) error {
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			return fmt.Errorf("err: %v, rbErr: %v", "no user found with status opened", rbErr)
+			return fmt.Errorf("err: %v: %v, rbErr: %v", "no user found with status", UserPendingStatus, rbErr)
 		}
-		return fmt.Errorf("no user found with status opened")
+		return fmt.Errorf("no user found with status: %v", UserPendingStatus)
 	}
 
 	err = tx.Commit()
