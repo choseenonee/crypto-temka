@@ -6,4 +6,5 @@ type Wallet struct {
 	Token     string  `json:"token"`
 	Deposit   float64 `json:"deposit"`
 	IsOutcome bool    `json:"is_outcome,omitempty"`
+	Outcome   float64 `json:"outcome"`
 }

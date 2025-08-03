@@ -20,10 +20,10 @@ func InitWallet(db *sqlx.DB) Wallet {
 }
 
 func (w wallet) Get(ctx context.Context, walletID int) (models.Wallet, error) {
-	row := w.db.QueryRowContext(ctx, `SELECT id, user_id, token, deposit, is_outcome FROM wallets WHERE id = $1`, walletID)
+	row := w.db.QueryRowContext(ctx, `SELECT id, user_id, token, deposit, is_outcome, outcome FROM wallets WHERE id = $1`, walletID)
 
 	var wallet models.Wallet
-	if err := row.Scan(&wallet.ID, &wallet.UserID, &wallet.Token, &wallet.Deposit, &wallet.IsOutcome); err != nil {
+	if err := row.Scan(&wallet.ID, &wallet.UserID, &wallet.Token, &wallet.Deposit, &wallet.IsOutcome, &wallet.Outcome); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Wallet{}, fmt.Errorf("no wallet were found by id: %v", walletID)
 		}
@@ -63,7 +63,7 @@ func (w wallet) Insert(ctx context.Context, userID int, token string, amount flo
 }
 
 func (w wallet) GetByUser(ctx context.Context, userID int) ([]models.Wallet, error) {
-	rows, err := w.db.QueryContext(ctx, `SELECT id, user_id, token, deposit, is_outcome FROM wallets WHERE user_id = $1`, userID)
+	rows, err := w.db.QueryContext(ctx, `SELECT id, user_id, token, deposit, is_outcome, outcome FROM wallets WHERE user_id = $1`, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("no wallets were found by userID: %v", userID)
@@ -74,7 +74,7 @@ func (w wallet) GetByUser(ctx context.Context, userID int) ([]models.Wallet, err
 	var wallets []models.Wallet
 	for rows.Next() {
 		var wallet models.Wallet
-		err = rows.Scan(&wallet.ID, &wallet.UserID, &wallet.Token, &wallet.Deposit, &wallet.IsOutcome)
+		err = rows.Scan(&wallet.ID, &wallet.UserID, &wallet.Token, &wallet.Deposit, &wallet.IsOutcome, &wallet.Outcome)
 		if err != nil {
 			return nil, err
 		}
