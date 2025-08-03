@@ -31,7 +31,7 @@ type insertWalletInput struct {
 // @Success 200 {object} int "Successfully created"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /wallet [post]
+// @Router /public/wallet [post]
 func (m *WalletHandler) Insert(c *gin.Context) {
 	ctx := c.Request.Context()
 

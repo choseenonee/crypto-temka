@@ -184,6 +184,10 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 
 	err = s.service.ClaimOutcome(ctx, filter.UserRateID, userID.(int), filter.WalletID, filter.Amount)
 	if err != nil {
+		if errors.Is(err, service.ErrNotOutcomeWallet) {
+			c.JSON(http.StatusTeapot, gin.H{"message": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

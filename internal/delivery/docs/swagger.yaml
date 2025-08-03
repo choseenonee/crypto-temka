@@ -1,4 +1,18 @@
+basePath: /api/v1
 definitions:
+  handlers.insertWalletInput:
+    properties:
+      amount:
+        type: number
+      is_outcome:
+        type: boolean
+      password:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
   handlers.payload:
     properties:
       email:
@@ -175,6 +189,10 @@ definitions:
         type: integer
       status:
         type: string
+      wallets:
+        items:
+          $ref: '#/definitions/models.Wallet'
+        type: array
     type: object
   models.UserCreate:
     properties:
@@ -210,6 +228,8 @@ definitions:
         type: integer
       voucher_id:
         type: string
+      wallet_id:
+        type: integer
     type: object
   models.UserRateAdmin:
     properties:
@@ -235,6 +255,8 @@ definitions:
         type: integer
       voucher_id:
         type: string
+      wallet_id:
+        type: integer
     type: object
   models.UserRateCreate:
     properties:
@@ -244,12 +266,12 @@ definitions:
         type: string
       rate_id:
         type: integer
-      token:
-        type: string
       user_id:
         type: integer
       voucher_id:
         type: string
+      wallet_id:
+        type: integer
     type: object
   models.Voucher:
     properties:
@@ -258,6 +280,19 @@ definitions:
       properties: {}
       type:
         type: string
+    type: object
+  models.Wallet:
+    properties:
+      deposit:
+        type: number
+      id:
+        type: integer
+      is_outcome:
+        type: boolean
+      token:
+        type: string
+      user_id:
+        type: integer
     type: object
   models.Withdraw:
     properties:
@@ -268,9 +303,10 @@ definitions:
       properties: {}
       status:
         type: string
-      token:
-        type: string
       user_id:
+        type: integer
+      wallet_id:
+        description: Token      string      `json:"token"`
         type: integer
     type: object
   models.WithdrawCreate:
@@ -280,13 +316,28 @@ definitions:
       properties: {}
       status:
         type: string
-      token:
-        type: string
       user_id:
         type: integer
+      wallet_id:
+        description: Token      string      `json:"token"`
+        type: integer
     type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
 paths:
   /admin/message:
     post:
@@ -797,6 +848,7 @@ paths:
         required: true
         type: string
       - description: amount
+        format: float64
         in: query
         name: amount
         required: true
@@ -1385,6 +1437,36 @@ paths:
             type: object
       tags:
       - public
+  /public/wallet:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.insertWalletInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
   /rate:
     get:
       consumes:
@@ -1471,6 +1553,7 @@ paths:
         required: true
         type: string
       - description: amount
+        format: float64
         in: query
         name: amount
         required: true
@@ -1478,6 +1561,11 @@ paths:
       - description: userRateID
         in: query
         name: user_rate_id
+        required: true
+        type: integer
+      - description: walletID
+        in: query
+        name: wallet_id
         required: true
         type: integer
       produces:
@@ -1511,6 +1599,7 @@ paths:
         required: true
         type: string
       - description: amount
+        format: float64
         in: query
         name: amount
         required: true
@@ -1518,6 +1607,11 @@ paths:
       - description: userRateID
         in: query
         name: user_rate_id
+        required: true
+        type: integer
+      - description: walletID
+        in: query
+        name: wallet_id
         required: true
         type: integer
       produces:

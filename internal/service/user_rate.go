@@ -148,6 +148,11 @@ func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID, walletID
 		return err
 	}
 
+	if !wallet.IsOutcome {
+		u.logger.Error(ErrNotOutcomeWallet.Error())
+		return ErrNotOutcomeWallet
+	}
+
 	err = u.repo.ClaimOutcome(ctx, userRateID, wallet.ID, amount)
 	if err != nil {
 		u.logger.Error(err.Error())

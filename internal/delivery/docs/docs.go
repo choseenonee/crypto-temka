@@ -9,7 +9,16 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -789,6 +798,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
+                        "format": "float64",
                         "description": "amount",
                         "name": "amount",
                         "in": "query",
@@ -1683,6 +1693,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/public/wallet": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.insertWalletInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/rate": {
             "get": {
                 "consumes": [
@@ -1817,6 +1874,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
+                        "format": "float64",
                         "description": "amount",
                         "name": "amount",
                         "in": "query",
@@ -1826,6 +1884,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "userRateID",
                         "name": "user_rate_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "walletID",
+                        "name": "wallet_id",
                         "in": "query",
                         "required": true
                     }
@@ -1877,6 +1942,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "number",
+                        "format": "float64",
                         "description": "amount",
                         "name": "amount",
                         "in": "query",
@@ -1886,6 +1952,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "userRateID",
                         "name": "user_rate_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "walletID",
+                        "name": "wallet_id",
                         "in": "query",
                         "required": true
                     }
@@ -2394,6 +2467,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.insertWalletInput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "is_outcome": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "handlers.payload": {
             "type": "object",
             "properties": {
@@ -2657,6 +2750,12 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                },
+                "wallets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Wallet"
+                    }
                 }
             }
         },
@@ -2710,6 +2809,9 @@ const docTemplate = `{
                 },
                 "voucher_id": {
                     "type": "string"
+                },
+                "wallet_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2748,6 +2850,9 @@ const docTemplate = `{
                 },
                 "voucher_id": {
                     "type": "string"
+                },
+                "wallet_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2763,14 +2868,14 @@ const docTemplate = `{
                 "rate_id": {
                     "type": "integer"
                 },
-                "token": {
-                    "type": "string"
-                },
                 "user_id": {
                     "type": "integer"
                 },
                 "voucher_id": {
                     "type": "string"
+                },
+                "wallet_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2783,6 +2888,26 @@ const docTemplate = `{
                 "properties": {},
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Wallet": {
+            "type": "object",
+            "properties": {
+                "deposit": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_outcome": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -2799,10 +2924,11 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "token": {
-                    "type": "string"
-                },
                 "user_id": {
+                    "type": "integer"
+                },
+                "wallet_id": {
+                    "description": "Token      string      ` + "`" + `json:\"token\"` + "`" + `",
                     "type": "integer"
                 }
             }
@@ -2817,25 +2943,30 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "token": {
-                    "type": "string"
-                },
                 "user_id": {
+                    "type": "integer"
+                },
+                "wallet_id": {
+                    "description": "Token      string      ` + "`" + `json:\"token\"` + "`" + `",
                     "type": "integer"
                 }
             }
         }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "https://swagger.io/resources/open-api/"
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Swagger Example API",
+	Description:      "This is a sample server celler server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

@@ -37,7 +37,8 @@ func (w wallet) Get(ctx context.Context, walletID int) (models.Wallet, error) {
 // TODO: pass is_outcome flag
 // TODO: if there is no wallet found, then create one
 func (w wallet) Insert(ctx context.Context, userID int, token string, amount float64, isOutcome bool) error {
-	res, err := w.db.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 WHERE user_id = $1 AND token = $3`, userID, amount, token)
+	res, err := w.db.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 
+               WHERE user_id = $1 AND token = $3 AND is_outcome = $4`, userID, amount, token, isOutcome)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("no wallets were found by userID: %v and token: %v", userID, token)
