@@ -17,10 +17,11 @@ func InitWalletHandler(repo repository.Wallet) WalletHandler {
 }
 
 type insertWalletInput struct {
-	Token    string  `json:"token"`
-	Amount   float64 `json:"amount"`
-	UserID   int     `json:"user_id"`
-	Password string  `json:"password"`
+	Token     string  `json:"token"`
+	Amount    float64 `json:"amount"`
+	UserID    int     `json:"user_id"`
+	Password  string  `json:"password"`
+	IsOutcome bool    `json:"is_outcome"`
 }
 
 // Create @Summary Insert amount of token to user
@@ -46,7 +47,7 @@ func (m *WalletHandler) Insert(c *gin.Context) {
 		return
 	}
 
-	err := m.repo.Insert(ctx, i.UserID, i.Token, i.Amount)
+	err := m.repo.Insert(ctx, i.UserID, i.Token, i.Amount, i.IsOutcome)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

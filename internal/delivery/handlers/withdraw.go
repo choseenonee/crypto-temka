@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"errors"
+	"net/http"
+
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/service"
+
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type WithdrawHandler struct {
@@ -45,6 +48,11 @@ func (w *WithdrawHandler) Create(c *gin.Context) {
 
 	id, err := w.service.Create(ctx, wc)
 	if err != nil {
+		if errors.Is(err, service.ErrNotOutcomeWallet) {
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

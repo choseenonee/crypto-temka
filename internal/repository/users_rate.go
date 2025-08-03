@@ -2,13 +2,15 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
+	"crypto-temka/internal/models"
+
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
-	"time"
 )
 
 type usersRateRepo struct {
@@ -19,7 +21,7 @@ func InitUsersRate(db *sqlx.DB) UsersRate {
 	return usersRateRepo{db: db}
 }
 
-func (u usersRateRepo) Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error) {
+func (u usersRateRepo) Create(ctx context.Context, urc models.UserRateCreate, wallet models.Wallet) (int, error) {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -27,7 +29,7 @@ func (u usersRateRepo) Create(ctx context.Context, urc models.UserRateCreate, wa
 
 	timestamp := time.Now()
 
-	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit - $2 WHERE wallets.id = $1`, walletID, urc.Deposit)
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit - $2 WHERE wallets.id = $1`, wallet.ID, urc.Deposit)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -49,7 +51,7 @@ func (u usersRateRepo) Create(ctx context.Context, urc models.UserRateCreate, wa
 
 	row := tx.QueryRowContext(ctx, `INSERT INTO users_rates (user_id, rate_id, lock, last_updated, opened, deposit, token) 
 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-		urc.UserID, urc.RateID, urc.Lock, timestamp, timestamp, urc.Deposit, urc.Token)
+		urc.UserID, urc.RateID, urc.Lock, timestamp, timestamp, urc.Deposit, wallet.Token)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {

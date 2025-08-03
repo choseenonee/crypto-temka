@@ -2,11 +2,16 @@ package service
 
 import (
 	"context"
+	"fmt"
+
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
 	"crypto-temka/pkg/log"
-	"fmt"
+
+	"github.com/pkg/errors"
 )
+
+var ErrNotOutcomeWallet = errors.New("wallet is not an outcome wallet")
 
 type withdraw struct {
 	logger     *log.Logs
@@ -24,13 +29,19 @@ func InitWithdraw(repo repository.Withdraw, walletRepo repository.Wallet, logger
 
 // USER
 func (w withdraw) Create(ctx context.Context, wu models.WithdrawCreate) (int, error) {
-	walletID, err := w.walletRepo.GetByToken(ctx, wu.UserID, wu.Token)
+	wallet, err := w.walletRepo.Get(ctx, wu.WalletID)
 	if err != nil {
 		w.logger.Error(err.Error())
 		return 0, err
 	}
 
-	id, err := w.repo.Create(ctx, wu, walletID.ID)
+	// check if wallet from we want to withdraw is_outcome
+	if !wallet.IsOutcome {
+		w.logger.Error(ErrNotOutcomeWallet.Error())
+		return 0, ErrNotOutcomeWallet
+	}
+
+	id, err := w.repo.Create(ctx, wu, wallet.ID)
 	if err != nil {
 		w.logger.Error(err.Error())
 		return 0, err

@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	"crypto-temka/internal/models"
+
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 )
@@ -16,7 +18,9 @@ type withdraw struct {
 }
 
 func InitWithdraw(db *sqlx.DB) Withdraw {
-	return withdraw{db: db}
+	return withdraw{
+		db: db,
+	}
 }
 
 func (w withdraw) Create(ctx context.Context, wu models.WithdrawCreate, walletID int) (int, error) {
@@ -36,8 +40,8 @@ func (w withdraw) Create(ctx context.Context, wu models.WithdrawCreate, walletID
 		return 0, err
 	}
 
-	row := tx.QueryRowContext(ctx, `INSERT INTO withdrawals (user_id, amount, token, status, properties) 
-			VALUES ($1, $2, $3, $4, $5) RETURNING id;`, wu.UserID, wu.Amount, wu.Token, "opened", propertiesRaw)
+	row := tx.QueryRowContext(ctx, `INSERT INTO withdrawals (user_id, amount, wallet_id, status, properties) 
+			VALUES ($1, $2, $3, $4, $5) RETURNING id;`, wu.UserID, wu.Amount, wu.WalletID, "opened", propertiesRaw)
 
 	var id int
 	err = row.Scan(&id)
@@ -58,7 +62,7 @@ func (w withdraw) Create(ctx context.Context, wu models.WithdrawCreate, walletID
 }
 
 func (w withdraw) GetByUserID(ctx context.Context, page, perPage, userID int) ([]models.Withdraw, error) {
-	rows, err := w.db.QueryContext(ctx, `SELECT id, user_id, amount, token, status, properties FROM withdrawals 
+	rows, err := w.db.QueryContext(ctx, `SELECT id, user_id, amount, wallet_id, status, properties FROM withdrawals 
                                                       WHERE user_id = $3 OFFSET $1 LIMIT $2;`,
 		(page-1)*perPage, perPage, userID)
 	if err != nil {
@@ -72,7 +76,7 @@ func (w withdraw) GetByUserID(ctx context.Context, page, perPage, userID int) ([
 	for rows.Next() {
 		var withdraw models.Withdraw
 		var propertiesRaw []byte
-		err = rows.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.Token, &withdraw.Status, &propertiesRaw)
+		err = rows.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.WalletID, &withdraw.Status, &propertiesRaw)
 		if err != nil {
 			return nil, err
 		}
@@ -91,12 +95,12 @@ func (w withdraw) GetByUserID(ctx context.Context, page, perPage, userID int) ([
 }
 
 func (w withdraw) GetByID(ctx context.Context, withdrawID int) (models.Withdraw, error) {
-	row := w.db.QueryRowContext(ctx, `SELECT id, user_id, amount, token, status, properties FROM withdrawals 
+	row := w.db.QueryRowContext(ctx, `SELECT id, user_id, amount, wallet_id, status, properties FROM withdrawals 
                                                       WHERE id = $1;`, withdrawID)
 
 	var withdraw models.Withdraw
 	var propertiesRaw []byte
-	err := row.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.Token, &withdraw.Status, &propertiesRaw)
+	err := row.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.WalletID, &withdraw.Status, &propertiesRaw)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Withdraw{}, fmt.Errorf("no withdrawals were found, withdrawID: %v", withdrawID)
@@ -118,10 +122,10 @@ func (w withdraw) GetAll(ctx context.Context, page, perPage int, status string) 
 	var err error
 	var rows *sql.Rows
 	if status != "" {
-		query := `SELECT id, user_id, amount, token, status, properties FROM withdrawals WHERE status = $1 OFFSET $2 LIMIT $3;`
+		query := `SELECT id, user_id, amount, wallet_id, status, properties FROM withdrawals WHERE status = $1 OFFSET $2 LIMIT $3;`
 		rows, err = w.db.QueryContext(ctx, query, status, (page-1)*perPage, perPage)
 	} else {
-		query := `SELECT id, user_id, amount, token, status, properties FROM withdrawals OFFSET $1 LIMIT $2;`
+		query := `SELECT id, user_id, amount, wallet_id, status, properties FROM withdrawals OFFSET $1 LIMIT $2;`
 		rows, err = w.db.QueryContext(ctx, query, (page-1)*perPage, perPage)
 	}
 
@@ -136,7 +140,7 @@ func (w withdraw) GetAll(ctx context.Context, page, perPage int, status string) 
 	for rows.Next() {
 		var withdraw models.Withdraw
 		var propertiesRaw []byte
-		err = rows.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.Token, &withdraw.Status, &propertiesRaw)
+		err = rows.Scan(&withdraw.ID, &withdraw.UserID, &withdraw.Amount, &withdraw.WalletID, &withdraw.Status, &propertiesRaw)
 		if err != nil {
 			return nil, err
 		}
@@ -155,8 +159,10 @@ func (w withdraw) GetAll(ctx context.Context, page, perPage int, status string) 
 }
 
 func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
-	row := tx.QueryRowContext(ctx, `SELECT u.id, u.refer_id, w.token, w.amount  FROM withdrawals w JOIN users u on u.id = w.user_id 
-                  WHERE w.id = $1;`, withdrawID)
+	row := tx.QueryRowContext(ctx, `SELECT u.id, u.refer_id, wa.token, w.amount
+											FROM withdrawals w 
+    										JOIN users u ON u.id = w.user_id JOIN wallets wa ON wa.id = w.wallet_id
+                  							WHERE w.id = $1;`, withdrawID)
 
 	var childID null.Int
 	var parentID null.Int
@@ -208,13 +214,12 @@ func processRefer(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 }
 
 func processRefund(tx *sql.Tx, ctx context.Context, withdrawID int) error {
-	row := tx.QueryRowContext(ctx, `SELECT w.user_id, w.amount, w.token FROM withdrawals w WHERE id = $1`,
+	row := tx.QueryRowContext(ctx, `SELECT w.amount, w.wallet_id FROM withdrawals w WHERE id = $1`,
 		withdrawID)
 
-	var userID int
 	var amount float64
-	var token string
-	err := row.Scan(&userID, &amount, &token)
+	var walletID string
+	err := row.Scan(&amount, &walletID)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -223,8 +228,8 @@ func processRefund(tx *sql.Tx, ctx context.Context, withdrawID int) error {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1, outcome = outcome + $1 WHERE token = $2 AND user_id = $3`,
-		amount, token, userID)
+	_, err = tx.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $1, outcome = outcome + $1 WHERE id = $2`,
+		amount, walletID)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {

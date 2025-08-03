@@ -2,14 +2,15 @@ package service
 
 import (
 	"context"
-	"crypto-temka/internal/models"
-	"crypto-temka/internal/repository"
-	"crypto-temka/internal/utils"
-	"crypto-temka/pkg/log"
 	"errors"
 	"fmt"
 	"strings"
 	"time"
+
+	"crypto-temka/internal/models"
+	"crypto-temka/internal/repository"
+	"crypto-temka/internal/utils"
+	"crypto-temka/pkg/log"
 )
 
 type userRate struct {
@@ -54,10 +55,10 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 		return 0, fmt.Errorf("lock date must be ровно через N weeks, то есть количество дней между сегодня. current lock_date %v", urc.Lock)
 	}
 
-	wallet, err := u.walletRepo.GetByToken(ctx, urc.UserID, urc.Token)
+	wallet, err := u.walletRepo.Get(ctx, urc.WalletID)
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "sql: no rows in result set") {
-			err := errors.New(fmt.Sprintf("wallet with token %v not found", urc.Token))
+			err := errors.New(fmt.Sprintf("wallet by id %v not found", urc.WalletID))
 			u.logger.Error(err.Error())
 			return 0, err
 		}
@@ -66,7 +67,7 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 	}
 
 	if wallet.Deposit < urc.Deposit {
-		err = errors.New(fmt.Sprintf("not enough money on wallet with token %v", urc.Token))
+		err = errors.New(fmt.Sprintf("not enough money on wallet by id %v", urc.WalletID))
 		u.logger.Error(err.Error())
 		return 0, err
 	}
@@ -97,7 +98,7 @@ func (u userRate) Create(ctx context.Context, urc models.UserRateCreate) (int, e
 		}
 	}
 
-	id, err := u.repo.Create(ctx, urc, wallet.ID)
+	id, err := u.repo.Create(ctx, urc, wallet)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return 0, err
@@ -130,7 +131,7 @@ func (u userRate) GetByUser(ctx context.Context, userID, page, perPage int) ([]m
 	return userRates, nil
 }
 
-func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID int, amount float64) error {
+func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID, walletID int, amount float64) error {
 	userRate, err := u.repo.Get(ctx, userRateID)
 	if err != nil {
 		u.logger.Error(err.Error())
@@ -141,7 +142,7 @@ func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID int, amou
 		return fmt.Errorf("forbidden")
 	}
 
-	wallet, err := u.walletRepo.GetByToken(ctx, userRate.UserID, userRate.Token)
+	wallet, err := u.walletRepo.Get(ctx, walletID)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err
@@ -156,7 +157,7 @@ func (u userRate) ClaimOutcome(ctx context.Context, userRateID, userID int, amou
 	return nil
 }
 
-func (u userRate) ClaimDeposit(ctx context.Context, userRateID, userID int, amount float64) error {
+func (u userRate) ClaimDeposit(ctx context.Context, userRateID, userID, walletID int, amount float64) error {
 	userRate, err := u.repo.Get(ctx, userRateID)
 	if err != nil {
 		u.logger.Error(err.Error())
@@ -171,7 +172,7 @@ func (u userRate) ClaimDeposit(ctx context.Context, userRateID, userID int, amou
 		return ErrLockDateNotReached
 	}
 
-	wallet, err := u.walletRepo.GetByToken(ctx, userRate.UserID, userRate.Token)
+	wallet, err := u.walletRepo.Get(ctx, walletID)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

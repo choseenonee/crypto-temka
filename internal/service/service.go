@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"crypto-temka/internal/models"
 )
 
@@ -42,8 +43,8 @@ type UserRate interface {
 	Create(ctx context.Context, urc models.UserRateCreate) (int, error)
 	Get(ctx context.Context, id, userID int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
-	ClaimOutcome(ctx context.Context, userRateID, userID int, amount float64) error
-	ClaimDeposit(ctx context.Context, userRateID, userID int, amount float64) error
+	ClaimOutcome(ctx context.Context, userRateID, userID, walletID int, amount float64) error
+	ClaimDeposit(ctx context.Context, userRateID, userID, walletID int, amount float64) error
 
 	// admin
 	GetAll(ctx context.Context, userID, page, perPage int) ([]models.UserRateAdmin, error)

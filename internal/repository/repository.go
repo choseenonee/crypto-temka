@@ -27,7 +27,7 @@ type Rate interface {
 }
 
 type UsersRate interface {
-	Create(ctx context.Context, urc models.UserRateCreate, walletID int) (int, error)
+	Create(ctx context.Context, urc models.UserRateCreate, wallet models.Wallet) (int, error)
 	Get(ctx context.Context, id int) (models.UserRate, error)
 	GetByUser(ctx context.Context, userID, page, perPage int) ([]models.UserRate, error)
 	CheckIfUserUsedRateById(ctx context.Context, rateID int) (bool, error)
@@ -38,9 +38,10 @@ type UsersRate interface {
 }
 
 type Wallet interface {
-	Insert(ctx context.Context, userID int, token string, amount float64) error
+	Get(ctx context.Context, walletID int) (models.Wallet, error)
+	Insert(ctx context.Context, userID int, token string, amount float64, isOutcome bool) error
 	GetByUser(ctx context.Context, userID int) ([]models.Wallet, error)
-	GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error)
+	//GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error)
 }
 
 type User interface {

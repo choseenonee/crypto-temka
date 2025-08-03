@@ -1,18 +1,22 @@
 package handlers
 
 import (
-	"crypto-temka/internal/delivery/middleware"
-	"crypto-temka/internal/models"
-	"crypto-temka/internal/service"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"crypto-temka/internal/delivery/middleware"
+	"crypto-temka/internal/models"
+	"crypto-temka/internal/repository"
+	"crypto-temka/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserRateHandler struct {
-	service service.UserRate
+	service    service.UserRate
+	walletRepo repository.Wallet
 }
 
 func InitUserRateHandler(serv service.UserRate) UserRateHandler {
@@ -152,6 +156,7 @@ func (s *UserRateHandler) GetUserRate(c *gin.Context) {
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param amount query float64 true "amount"
 // @Param user_rate_id query int true "userRateID"
+// @Param wallet_id query int true "walletID"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
@@ -162,6 +167,7 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 	var filter struct {
 		UserRateID int     `form:"user_rate_id"`
 		Amount     float64 `form:"amount"`
+		WalletID   int     `form:"wallet_id"`
 	}
 
 	err := c.BindQuery(&filter)
@@ -176,7 +182,7 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 		return
 	}
 
-	err = s.service.ClaimOutcome(ctx, filter.UserRateID, userID.(int), filter.Amount)
+	err = s.service.ClaimOutcome(ctx, filter.UserRateID, userID.(int), filter.WalletID, filter.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -192,6 +198,7 @@ func (s *UserRateHandler) ClaimOutcome(c *gin.Context) {
 // @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 // @Param amount query float64 true "amount"
 // @Param user_rate_id query int true "userRateID"
+// @Param wallet_id query int true "walletID"
 // @Success 200 {object} nil ""
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 400 {object} map[string]string "Lock date has not yet arrived"
@@ -203,6 +210,7 @@ func (s *UserRateHandler) ClaimDeposit(c *gin.Context) {
 	var filter struct {
 		UserRateID int     `form:"user_rate_id"`
 		Amount     float64 `form:"amount"`
+		WalletID   int     `form:"wallet_id"`
 	}
 
 	err := c.BindQuery(&filter)
@@ -217,7 +225,7 @@ func (s *UserRateHandler) ClaimDeposit(c *gin.Context) {
 		return
 	}
 
-	err = s.service.ClaimDeposit(ctx, filter.UserRateID, userID.(int), filter.Amount)
+	err = s.service.ClaimDeposit(ctx, filter.UserRateID, userID.(int), filter.WalletID, filter.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
