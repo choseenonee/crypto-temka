@@ -1,8 +1,14 @@
-migration/up:
+migration/local/up:
 	goose -dir ./deploy/migrations postgres "user=salut password=salut123 dbname=root port=5433 host=localhost sslmode=disable" up
 
-migration/down:
+migration/local/down:
 	goose -dir ./deploy/migrations postgres "user=salut password=salut123 dbname=root port=5433 host=localhost sslmode=disable" down
+
+migration/remote/up:
+	goose -dir ./deploy/migrations postgres "user=salut password=salut123 dbname=root port=5433 host=5.129.198.124 sslmode=disable" up
+
+migration/remote/down:
+	goose -dir ./deploy/migrations postgres "user=salut password=salut123 dbname=root port=5433 host=5.129.198.124 sslmode=disable" down
 
 
 docs/gen:
