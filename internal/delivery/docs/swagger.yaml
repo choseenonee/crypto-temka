@@ -309,6 +309,19 @@ definitions:
       user_id:
         type: integer
     type: object
+  models.WalletUpdate:
+    properties:
+      deposit:
+        type: number
+      id:
+        type: integer
+      is_outcome:
+        type: boolean
+      outcome:
+        type: number
+      token:
+        type: string
+    type: object
   models.Withdraw:
     properties:
       amount:
@@ -1061,6 +1074,44 @@ paths:
             type: object
       tags:
       - voucher
+  /admin/wallet:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: a
+        in: body
+        name: properties
+        required: true
+        schema:
+          $ref: '#/definitions/models.WalletUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
   /admin/withdraw/all:
     get:
       consumes:

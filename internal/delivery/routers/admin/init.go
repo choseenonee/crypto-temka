@@ -1,11 +1,13 @@
 package admin
 
 import (
+	"os"
+
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/pkg/log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"os"
 )
 
 func InitAdminRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middleware.Middleware, metricsSetFile *os.File) {
@@ -28,4 +30,6 @@ func InitAdminRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middlewa
 	_ = RegisterAdminUserRateRouter(admin, db, logger)
 
 	_ = RegisterAdminVoucherRouter(admin, db, logger)
+
+	_ = RegisterAdminWalletRouter(admin, db, logger)
 }

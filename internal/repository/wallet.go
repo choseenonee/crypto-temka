@@ -90,6 +90,21 @@ func (w wallet) GetByUser(ctx context.Context, userID int) ([]models.Wallet, err
 	return wallets, nil
 }
 
+func (w wallet) Update(ctx context.Context, wallet models.WalletUpdate) error {
+	query := `UPDATE wallets SET token = $2, deposit = $3, outcome = $4, is_outcome = $5 WHERE id = $1;`
+
+	res, err := w.db.ExecContext(ctx, query, wallet.ID, wallet.Token, wallet.Deposit, wallet.Outcome, wallet.IsOutcome)
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		return fmt.Errorf("no wallet found by id: %v", wallet.ID)
+	}
+
+	return nil
+}
+
 // deprecated
 //func (w wallet) GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error) {
 //	row := w.db.QueryRowContext(ctx, `SELECT id, user_id, token, deposit, is_outcome FROM wallets WHERE user_id = $1 AND token = $2`,

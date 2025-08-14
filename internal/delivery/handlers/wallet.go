@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"crypto-temka/internal/models"
 	"crypto-temka/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -50,6 +51,37 @@ func (m *WalletHandler) Insert(c *gin.Context) {
 	err := m.repo.Insert(ctx, i.UserID, i.Token, i.Amount, i.IsOutcome)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// Update @Summary Update user wallet fields by admin
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param properties body models.WalletUpdate true "a"
+// @Success 200 {object} string ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/wallet [put]
+func (w *WalletHandler) Update(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	wallet := models.WalletUpdate{}
+	err := c.ShouldBindJSON(&wallet)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad input body: ": err.Error()})
+
+		return
+	}
+
+	err = w.repo.Update(ctx, wallet)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
