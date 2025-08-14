@@ -18,7 +18,9 @@ func InitUserRouters(r *gin.Engine, db *sqlx.DB, logger *log.Logs, mdw middlewar
 
 	walletRepo := repository.InitWallet(db)
 
-	userService := service.InitUser(userRepo, walletRepo, jwt, logger)
+	withdrawRepo := repository.InitWithdraw(db)
+
+	userService := service.InitUser(userRepo, walletRepo, withdrawRepo, jwt, logger)
 
 	_ = RegisterUserRouter(r, userService, mdw)
 

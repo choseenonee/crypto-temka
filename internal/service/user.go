@@ -13,18 +13,20 @@ import (
 )
 
 type user struct {
-	logger     *log.Logs
-	repo       repository.User
-	walletRepo repository.Wallet
-	jwt        auth.JWTUtil
+	logger         *log.Logs
+	repo           repository.User
+	walletRepo     repository.Wallet
+	withdrawalRepo repository.Withdraw
+	jwt            auth.JWTUtil
 }
 
-func InitUser(repo repository.User, walletRepo repository.Wallet, jwt auth.JWTUtil, logger *log.Logs) User {
+func InitUser(repo repository.User, walletRepo repository.Wallet, withdrawalRepo repository.Withdraw, jwt auth.JWTUtil, logger *log.Logs) User {
 	return user{
-		logger:     logger,
-		repo:       repo,
-		walletRepo: walletRepo,
-		jwt:        jwt,
+		logger:         logger,
+		repo:           repo,
+		walletRepo:     walletRepo,
+		withdrawalRepo: withdrawalRepo,
+		jwt:            jwt,
 	}
 }
 
@@ -95,6 +97,15 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 
 	for i := range users {
 		users[i].Wallets, err = u.walletRepo.GetByUser(ctx, users[i].ID)
+		if err != nil {
+			u.logger.Error(err.Error())
+
+			return nil, err
+		}
+	}
+
+	for i := range users {
+		users[i].Withdrawals, err = u.withdrawalRepo.GetByUserID(ctx, 1, 999999999999, users[i].ID)
 		if err != nil {
 			u.logger.Error(err.Error())
 
