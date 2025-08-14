@@ -53,6 +53,7 @@ type User interface {
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
 	UpdateStatus(ctx context.Context, id int, status string) error
 	UpdateProperties(ctx context.Context, id int, properties interface{}, startVerify bool) error
+	Update(ctx context.Context, user models.UserUpdate) error
 }
 
 type Withdraw interface {

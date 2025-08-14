@@ -26,6 +26,7 @@ func RegisterAdminUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) 
 
 	router.GET("/all", handler.GetAll)
 	router.PUT("/status", handler.UpdateStatus)
+	router.PUT("/", handler.Update)
 
 	return router
 }

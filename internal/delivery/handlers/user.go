@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"net/http"
+
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/internal/models"
 	"crypto-temka/internal/service"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -222,6 +223,37 @@ func (u *UserHandler) UpdateProperties(c *gin.Context) {
 	err = u.service.UpdateProperties(ctx, userID.(int), p.Properties, filter.StartVerify)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// Update @Summary Update all user fields by admin
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+// @Param properties body models.UserUpdate true "new properties"
+// @Success 200 {object} string ""
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /admin/user [put]
+func (u *UserHandler) Update(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	user := models.UserUpdate{}
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"bad input body: ": err.Error()})
+
+		return
+	}
+
+	err = u.service.Update(ctx, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 

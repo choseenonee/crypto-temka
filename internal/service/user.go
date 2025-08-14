@@ -129,6 +129,18 @@ func (u user) UpdateProperties(ctx context.Context, id int, properties interface
 	err := u.repo.UpdateProperties(ctx, id, properties, startVerify)
 	if err != nil {
 		u.logger.Error(err.Error())
+
+		return err
+	}
+
+	return nil
+}
+
+func (u user) Update(ctx context.Context, user models.UserUpdate) error {
+	err := u.repo.Update(ctx, user)
+	if err != nil {
+		u.logger.Error(err.Error())
+
 		return err
 	}
 

@@ -12,9 +12,13 @@ type UserCreate struct {
 	Password string `json:"password"`
 }
 
-type User struct {
+type UserUpdate struct {
 	UserBase
-	ID      int      `json:"id"`
-	Status  string   `json:"status"`
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
+type User struct {
+	UserUpdate
 	Wallets []Wallet `json:"wallets"`
 }

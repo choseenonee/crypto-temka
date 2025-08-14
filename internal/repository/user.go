@@ -245,3 +245,25 @@ func (u user) UpdateProperties(ctx context.Context, id int, properties interface
 
 	return nil
 }
+
+func (u user) Update(ctx context.Context, user models.UserUpdate) error {
+	propertiesJSON, err := json.Marshal(user.Properties)
+	if err != nil {
+		return err
+	}
+
+	var query string
+
+	query = `UPDATE users SET email = $2, phone_number = $3, refer_id = $4, status = $5, properties = $6 WHERE id = $1;`
+
+	res, err := u.db.ExecContext(ctx, query, user.ID, user.Email, user.PhoneNumber, user.ReferID, user.Status, propertiesJSON)
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected != 1 {
+		return fmt.Errorf("no user found by id: %v", user.ID)
+	}
+
+	return nil
+}

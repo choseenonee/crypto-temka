@@ -64,6 +64,7 @@ type User interface {
 	// admin
 	GetAll(ctx context.Context, page, perPage int, status string) ([]models.User, error)
 	UpdateStatus(ctx context.Context, id int, status string) error
+	Update(ctx context.Context, user models.UserUpdate) error
 }
 
 type Withdraw interface {

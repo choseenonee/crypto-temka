@@ -272,6 +272,20 @@ definitions:
       wallet_id:
         type: integer
     type: object
+  models.UserUpdate:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      phone_number:
+        type: string
+      properties: {}
+      refer_id:
+        type: integer
+      status:
+        type: string
+    type: object
   models.Voucher:
     properties:
       id:
@@ -288,6 +302,8 @@ definitions:
         type: integer
       is_outcome:
         type: boolean
+      outcome:
+        type: number
       token:
         type: string
       user_id:
@@ -673,6 +689,44 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - admin
+  /admin/user:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: new properties
+        in: body
+        name: properties
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
         "400":
           description: Invalid input
           schema:
