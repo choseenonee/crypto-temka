@@ -93,10 +93,11 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 		return nil, err
 	}
 
-	for _, user := range users {
-		user.Wallets, err = u.walletRepo.GetByUser(ctx, user.ID)
+	for i := range users {
+		users[i].Wallets, err = u.walletRepo.GetByUser(ctx, users[i].ID)
 		if err != nil {
 			u.logger.Error(err.Error())
+
 			return nil, err
 		}
 	}

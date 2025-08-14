@@ -34,19 +34,24 @@ func (m Middleware) Authorization(admin bool, getStatus func(id int) (string, er
 				c.AbortWithStatusJSON(http.StatusUpgradeRequired, gin.H{"message": "JWT expired"})
 				return
 			}
+
 			m.logger.Error(fmt.Sprintf("token parse error: %v at: %v", err, c.Request.URL.Path))
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": fmt.Sprintf("error on parsing JWT: %v", err)})
+
 			return
 		}
 
 		if admin {
 			if !isAdmin {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "only admin token for this endpoint"})
+
 				return
 			}
 		} else {
 			if isAdmin {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "only user token for this endpoint"})
+
 				return
 			}
 		}
