@@ -4,6 +4,7 @@ import (
 	"crypto-temka/internal/delivery/handlers"
 	"crypto-temka/internal/delivery/middleware"
 	"crypto-temka/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +21,7 @@ func RegisterUserRouter(r *gin.Engine, userService service.User, mdw middleware.
 
 	notVerifiedUserRouter.Use(mdw.Authorization(false, userService.GetStatus, []string{"declined", "opened", "pending"}))
 
-	notVerifiedUserRouter.PUT("/", handler.UpdateProperties)
+	notVerifiedUserRouter.PUT("", handler.UpdateProperties)
 
 	return nil
 }
