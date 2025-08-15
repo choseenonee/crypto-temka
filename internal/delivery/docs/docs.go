@@ -2858,10 +2858,28 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
+                "user_rates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserRate"
+                    }
+                },
                 "wallets": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Wallet"
+                    }
+                },
+                "wallets_insert_history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.WalletInsertHistory"
+                    }
+                },
+                "withdrawals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Withdraw"
                     }
                 }
             }
@@ -3038,6 +3056,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.WalletInsertHistory": {
+            "type": "object",
+            "properties": {
+                "deposit": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "wallet_id": {
                     "type": "integer"
                 }
             }

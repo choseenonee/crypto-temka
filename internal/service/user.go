@@ -17,15 +17,25 @@ type user struct {
 	repo           repository.User
 	walletRepo     repository.Wallet
 	withdrawalRepo repository.Withdraw
+	userRateRepo   repository.UsersRate
 	jwt            auth.JWTUtil
 }
 
-func InitUser(repo repository.User, walletRepo repository.Wallet, withdrawalRepo repository.Withdraw, jwt auth.JWTUtil, logger *log.Logs) User {
+func InitUser(
+	repo repository.User,
+	walletRepo repository.Wallet,
+	withdrawalRepo repository.Withdraw,
+	userRateRepo repository.UsersRate,
+	jwt auth.JWTUtil,
+	logger *log.Logs,
+) User {
+
 	return user{
 		logger:         logger,
 		repo:           repo,
 		walletRepo:     walletRepo,
 		withdrawalRepo: withdrawalRepo,
+		userRateRepo:   userRateRepo,
 		jwt:            jwt,
 	}
 }
@@ -82,6 +92,21 @@ func (u user) Get(ctx context.Context, id int) (models.User, error) {
 	user.Wallets, err = u.walletRepo.GetByUser(ctx, id)
 	if err != nil {
 		u.logger.Error(err.Error())
+
+		return models.User{}, err
+	}
+
+	user.Withdrawals, err = u.withdrawalRepo.GetByUserID(ctx, 1, 999999999999, user.ID)
+	if err != nil {
+		u.logger.Error(err.Error())
+
+		return models.User{}, err
+	}
+
+	user.WalletsInsertHistory, err = u.walletRepo.GetWalletsInsertHistoryByUserID(ctx, user.ID)
+	if err != nil {
+		u.logger.Error(err.Error())
+
 		return models.User{}, err
 	}
 
@@ -106,6 +131,24 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 
 	for i := range users {
 		users[i].Withdrawals, err = u.withdrawalRepo.GetByUserID(ctx, 1, 999999999999, users[i].ID)
+		if err != nil {
+			u.logger.Error(err.Error())
+
+			return nil, err
+		}
+	}
+
+	for i := range users {
+		users[i].WalletsInsertHistory, err = u.walletRepo.GetWalletsInsertHistoryByUserID(ctx, users[i].ID)
+		if err != nil {
+			u.logger.Error(err.Error())
+
+			return nil, err
+		}
+	}
+
+	for i := range users {
+		users[i].UserRates, err = u.userRateRepo.GetByUser(ctx, users[i].ID, 1, 99999999999)
 		if err != nil {
 			u.logger.Error(err.Error())
 

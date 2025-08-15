@@ -3,8 +3,9 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
+
+	"github.com/pkg/errors"
 
 	"crypto-temka/internal/models"
 
@@ -34,29 +35,58 @@ func (w wallet) Get(ctx context.Context, walletID int) (models.Wallet, error) {
 	return wallet, nil
 }
 
-// TODO: pass is_outcome flag
-// TODO: if there is no wallet found, then create one
 func (w wallet) Insert(ctx context.Context, userID int, token string, amount float64, isOutcome bool) error {
-	res, err := w.db.ExecContext(ctx, `UPDATE wallets SET deposit = deposit + $2 
-               WHERE user_id = $1 AND token = $3 AND is_outcome = $4`, userID, amount, token, isOutcome)
+	tx, err := w.db.Begin()
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("no wallets were found by userID: %v and token: %v", userID, token)
-		}
-		return err
+		return errors.Wrap(err, "could not start transaction")
 	}
 
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
+	rows := w.db.QueryRowContext(ctx, `UPDATE wallets SET deposit = deposit + $2 
+               WHERE user_id = $1 AND token = $3 AND is_outcome = $4 RETURNING id`, userID, amount, token, isOutcome)
 
-	if rowsAffected == 0 {
-		_, err := w.db.ExecContext(ctx, `INSERT INTO wallets (user_id, token, deposit, outcome, is_outcome) VALUES ($1, $2, $3, $4, $5)`,
-			userID, token, amount, 0, isOutcome)
-		if err != nil {
+	var walletID sql.NullInt64
+	err = rows.Scan(&walletID)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				return errors.Errorf("could not exec query: %v, also could not rollback transaction: %v", err, rbErr)
+			}
+
 			return err
 		}
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		rows := w.db.QueryRowContext(ctx, `INSERT INTO wallets (user_id, token, deposit, outcome, is_outcome) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+			userID, token, amount, 0, isOutcome)
+
+		err = rows.Scan(&walletID)
+		if err != nil {
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				return errors.Errorf("could not exec query: %v, also could not rollback transaction: %v", err, rbErr)
+			}
+
+			return err
+		}
+	}
+
+	insertIntoWalletsHistoryQuery := `INSERT INTO wallets_insert_history (wallet_id, ts, amount) VALUES ($1, current_timestamp, $2)`
+
+	_, err = tx.ExecContext(ctx, insertIntoWalletsHistoryQuery, walletID.Int64, amount)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			return errors.Errorf("could not exec query: %v, also could not rollback transaction: %v", err, rbErr)
+		}
+
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return errors.Wrap(err, "could not commit transaction")
 	}
 
 	return nil
@@ -103,6 +133,35 @@ func (w wallet) Update(ctx context.Context, wallet models.WalletUpdate) error {
 	}
 
 	return nil
+}
+
+func (w wallet) GetWalletsInsertHistoryByUserID(ctx context.Context, userID int) ([]models.WalletInsertHistory, error) {
+	rows, err := w.db.QueryContext(ctx, `SELECT wih.id, wih.wallet_id, wih.amount, wih.ts FROM wallets_insert_history wih JOIN wallets w ON wih.wallet_id = w.id WHERE w.user_id = $1`, userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("no wallet insert history were found by userID: %v", userID)
+		}
+
+		return nil, err
+	}
+
+	var wallets []models.WalletInsertHistory
+	for rows.Next() {
+		var wallet models.WalletInsertHistory
+		err = rows.Scan(&wallet.ID, &wallet.WalletID, &wallet.Amount, &wallet.TimeStamp)
+		if err != nil {
+			return nil, err
+		}
+
+		wallets = append(wallets, wallet)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return wallets, nil
 }
 
 // deprecated

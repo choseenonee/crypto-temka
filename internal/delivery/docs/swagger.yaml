@@ -188,9 +188,21 @@ definitions:
         type: integer
       status:
         type: string
+      user_rates:
+        items:
+          $ref: '#/definitions/models.UserRate'
+        type: array
       wallets:
         items:
           $ref: '#/definitions/models.Wallet'
+        type: array
+      wallets_insert_history:
+        items:
+          $ref: '#/definitions/models.WalletInsertHistory'
+        type: array
+      withdrawals:
+        items:
+          $ref: '#/definitions/models.Withdraw'
         type: array
     type: object
   models.UserCreate:
@@ -307,6 +319,17 @@ definitions:
       token:
         type: string
       user_id:
+        type: integer
+    type: object
+  models.WalletInsertHistory:
+    properties:
+      deposit:
+        type: number
+      id:
+        type: integer
+      timestamp:
+        type: string
+      wallet_id:
         type: integer
     type: object
   models.WalletUpdate:

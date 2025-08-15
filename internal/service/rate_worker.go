@@ -1,15 +1,16 @@
 package service
 
 import (
-	"crypto-temka/internal/models"
-	"crypto-temka/internal/utils"
-	"crypto-temka/pkg/config"
-	"crypto-temka/pkg/log"
 	"database/sql"
 	"errors"
 	"fmt"
 	"math"
 	"time"
+
+	"crypto-temka/internal/models"
+	"crypto-temka/internal/utils"
+	"crypto-temka/pkg/config"
+	"crypto-temka/pkg/log"
 
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"

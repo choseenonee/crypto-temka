@@ -22,7 +22,9 @@ func RegisterAdminUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs) 
 
 	withdrawRepo := repository.InitWithdraw(db)
 
-	userService := service.InitUser(userRepo, walletRepo, withdrawRepo, jwt, logger)
+	userRateRepo := repository.InitUsersRate(db)
+
+	userService := service.InitUser(userRepo, walletRepo, withdrawRepo, userRateRepo, jwt, logger)
 
 	handler := handlers.InitUserHandler(userService)
 

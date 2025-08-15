@@ -20,6 +20,8 @@ type UserUpdate struct {
 
 type User struct {
 	UserUpdate
-	Wallets     []Wallet   `json:"wallets"`
-	Withdrawals []Withdraw `json:"withdrawals"`
+	Wallets              []Wallet              `json:"wallets"`
+	Withdrawals          []Withdraw            `json:"withdrawals"`
+	WalletsInsertHistory []WalletInsertHistory `json:"wallets_insert_history"`
+	UserRates            []UserRate            `json:"user_rates"`
 }

@@ -42,6 +42,7 @@ type Wallet interface {
 	Insert(ctx context.Context, userID int, token string, amount float64, isOutcome bool) error
 	GetByUser(ctx context.Context, userID int) ([]models.Wallet, error)
 	Update(ctx context.Context, wallet models.WalletUpdate) error
+	GetWalletsInsertHistoryByUserID(ctx context.Context, userID int) ([]models.WalletInsertHistory, error)
 	//GetByToken(ctx context.Context, userID int, token string) (models.Wallet, error)
 }
 
