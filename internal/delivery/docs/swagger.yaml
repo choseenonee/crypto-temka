@@ -188,6 +188,10 @@ definitions:
         type: integer
       status:
         type: string
+      used_vouchers:
+        items:
+          $ref: '#/definitions/models.Voucher'
+        type: array
       user_rates:
         items:
           $ref: '#/definitions/models.UserRate'

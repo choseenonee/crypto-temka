@@ -90,4 +90,6 @@ type Voucher interface {
 	// Users vouchers
 	CreateUserVoucher(ctx context.Context, userID int, voucherID string) error
 	GetUserVoucher(ctx context.Context, userID int, voucherID string) (bool, error)
+
+	GetUsedVouchersByUserId(ctx context.Context, userID int) ([]models.Voucher, error)
 }

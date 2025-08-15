@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
-	"crypto-temka/internal/models"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+
+	"crypto-temka/internal/models"
+
 	"github.com/guregu/null"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -127,4 +129,32 @@ func (v voucherRepo) GetUserVoucher(ctx context.Context, userID int, voucherID s
 	}
 
 	return flag.Valid, nil
+}
+
+// TODO: и в GET user/me и в GET admin/all
+func (v voucherRepo) GetUsedVouchersByUserId(ctx context.Context, userID int) ([]models.Voucher, error) {
+	query := `SELECT v.id, v.type, v.properties FROM users_vouchers uv JOIN vouchers v ON uv.voucher_id = v.id WHERE uv.user_id = $1`
+	rows, err := v.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("voucherRepo.GetUsedVouchersByUserId - v.db.QueryContext: %v", err)
+	}
+
+	var vouchers []models.Voucher
+
+	for rows.Next() {
+		var voucher models.Voucher
+		var propertiesRaw []byte
+
+		err = rows.Scan(&voucher.Id, &voucher.VoucherType, &propertiesRaw)
+		if err != nil {
+			return nil, fmt.Errorf("voucherRepo.GetUsedVouchersByUserId - rows.Scan: %v", err)
+		}
+
+		err = json.Unmarshal(propertiesRaw, &voucher.Properties)
+		if err != nil {
+			return nil, fmt.Errorf("voucherRepo.GetUsedVouchersByUserId - json.Unmarshal: %v", err)
+		}
+	}
+
+	return vouchers, nil
 }

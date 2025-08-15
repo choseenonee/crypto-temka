@@ -24,4 +24,5 @@ type User struct {
 	Withdrawals          []Withdraw            `json:"withdrawals"`
 	WalletsInsertHistory []WalletInsertHistory `json:"wallets_insert_history"`
 	UserRates            []UserRate            `json:"user_rates"`
+	UsedVouchers         []Voucher             `json:"used_vouchers"`
 }

@@ -2858,6 +2858,12 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
+                "used_vouchers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Voucher"
+                    }
+                },
                 "user_rates": {
                     "type": "array",
                     "items": {

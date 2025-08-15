@@ -18,6 +18,7 @@ type user struct {
 	walletRepo     repository.Wallet
 	withdrawalRepo repository.Withdraw
 	userRateRepo   repository.UsersRate
+	voucherRepo    repository.Voucher
 	jwt            auth.JWTUtil
 }
 
@@ -26,6 +27,7 @@ func InitUser(
 	walletRepo repository.Wallet,
 	withdrawalRepo repository.Withdraw,
 	userRateRepo repository.UsersRate,
+	voucherRepo repository.Voucher,
 	jwt auth.JWTUtil,
 	logger *log.Logs,
 ) User {
@@ -36,6 +38,7 @@ func InitUser(
 		walletRepo:     walletRepo,
 		withdrawalRepo: withdrawalRepo,
 		userRateRepo:   userRateRepo,
+		voucherRepo:    voucherRepo,
 		jwt:            jwt,
 	}
 }
@@ -110,6 +113,13 @@ func (u user) Get(ctx context.Context, id int) (models.User, error) {
 		return models.User{}, err
 	}
 
+	user.UsedVouchers, err = u.voucherRepo.GetUsedVouchersByUserId(ctx, user.ID)
+	if err != nil {
+		u.logger.Error(err.Error())
+
+		return models.User{}, err
+	}
+
 	return user, nil
 }
 
@@ -149,6 +159,15 @@ func (u user) GetAll(ctx context.Context, page, perPage int, status string) ([]m
 
 	for i := range users {
 		users[i].UserRates, err = u.userRateRepo.GetByUser(ctx, users[i].ID, 1, 99999999999)
+		if err != nil {
+			u.logger.Error(err.Error())
+
+			return nil, err
+		}
+	}
+
+	for i := range users {
+		users[i].UsedVouchers, err = u.voucherRepo.GetUsedVouchersByUserId(ctx, users[i].ID)
 		if err != nil {
 			u.logger.Error(err.Error())
 

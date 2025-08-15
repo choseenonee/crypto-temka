@@ -24,7 +24,9 @@ func RegisterPublicUserRouter(r *gin.RouterGroup, db *sqlx.DB, logger *log.Logs)
 
 	userRateRepo := repository.InitUsersRate(db)
 
-	userService := service.InitUser(userRepo, walletRepo, withdrawRepo, userRateRepo, jwt, logger)
+	voucherRepo := repository.InitVoucherRepo(db)
+
+	userService := service.InitUser(userRepo, walletRepo, withdrawRepo, userRateRepo, voucherRepo, jwt, logger)
 
 	handler := handlers.InitUserHandler(userService)
 
